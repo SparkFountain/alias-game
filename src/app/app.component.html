@@ -1,3 +1,45 @@
 <h1>Alias Game</h1>
 
-<app-board [horizontal]="5" [vertical]="5" [wordCategory]="wordCategory"></app-board>
+<ng-container *ngIf="page === 'welcome'">
+  <div class="menu-buttons">
+    <button (click)="page = 'new game'">Neues Spiel erstellen</button>
+    <button (click)="page = 'join game'">Einem Spiel beitreten</button>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="page === 'new game'">
+  <h2>Erstelle ein neues Spiel</h2>
+
+  <div class="form-group">
+    <label>Größe des Spielfelds</label>
+    <select (change)="updateBoardSize($event.target.value)">
+      <option (click)="updateBoardSize(3, 3)">3 x 3</option>
+      <option (click)="updateBoardSize(4, 3)">4 x 3</option>
+      <option (click)="updateBoardSize(4, 4)">4 x 4</option>
+      <option (click)="updateBoardSize(5, 4)">5 x 4</option>
+      <option (click)="updateBoardSize(5, 5)" selected>5 x 5</option>
+      <option (click)="updateBoardSize(6, 5)">6 x 5</option>
+      <option (click)="updateBoardSize(6, 6)">6 x 6</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Wähle ein Thema</label>
+    <select (change)="updateTheme($event.target.value)">
+      <option (click)="updateTheme('mixed')">Gemischte Begriffe</option>
+      <option (click)="updateTheme('over-18')">Ü 18</option>
+      <option (click)="updateTheme('party')">Party</option>
+      <option (click)="updateTheme('jazzchor')">Jazzchor</option>
+      <option (click)="updateTheme('corona')">Corona</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>Lege die Teamfarben fest</label>
+  </div>
+  <button (click)="createGame()">Spiel erstellen</button>
+</ng-container>
+
+<ng-container *ngIf="page === 'join game'">
+  <h2>Nimm an einem Spiel teil</h2>
+</ng-container>
+
+<app-board *ngIf="page === 'play'" [horizontal]="horizontal" [vertical]="vertical" [wordCategory]="theme"></app-board>

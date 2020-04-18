@@ -1,6 +1,7 @@
 .card {
   display: inline-flex;
   justify-content: center;
+  align-items: center;
   width: 18vw;
   height: 10vh;
   margin-bottom: 50px;
@@ -8,8 +9,7 @@
   background: peru;
   border-radius: 15px;
 
-  font-family: "Baloo Bhaina 2", cursive;
-  font-size: 28px;
+  font-size: 1.75vw;
 
   .word {
     margin: 0;

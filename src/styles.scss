@@ -1,5 +1,37 @@
+$white: #ddd;
+$black: #222;
+$sea: seagreen;
+
+body {
+  background: url(assets/background.jpg);
+  background-size: cover;
+  font-family: 'Baloo Bhaina 2', cursive;
+}
+
 h1 {
   text-align: center;
-  font-family: "Indie Flower", cursive;
+  font-family: 'Indie Flower', cursive;
   font-size: 80px;
+  color: #222;
+}
+
+.menu-buttons {
+  display: flex;
+  justify-content: space-around;
+  width: 500px;
+  position: absolute;
+  top: 33%;
+  left: calc(50% - 250px);
+
+  button {
+    font-family: 'Baloo Bhaina 2', cursive;
+    border-radius: 8px;
+    background: $sea;
+    border: 1px solid $sea;
+    cursor: pointer;
+    color: $white;
+    font-size: 18px;
+    padding: 8px 20px;
+    box-shadow: 0 0 5px $black;
+  }
 }
