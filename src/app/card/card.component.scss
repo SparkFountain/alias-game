@@ -1,0 +1,19 @@
+.card {
+  display: inline-flex;
+  justify-content: center;
+  width: 18vw;
+  height: 10vh;
+  margin-bottom: 50px;
+
+  background: peru;
+  border-radius: 15px;
+
+  font-family: "Baloo Bhaina 2", cursive;
+  font-size: 28px;
+
+  .word {
+    margin: 0;
+    padding: 0;
+    display: flex;
+  }
+}
