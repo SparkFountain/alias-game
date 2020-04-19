@@ -2,44 +2,58 @@
 
 <ng-container *ngIf="page === 'welcome'">
   <div class="menu-buttons">
-    <button (click)="page = 'new game'">Neues Spiel erstellen</button>
+    <button (click)="page = 'create game'">Neues Spiel erstellen</button>
     <button (click)="page = 'join game'">Einem Spiel beitreten</button>
   </div>
 </ng-container>
 
-<ng-container *ngIf="page === 'new game'">
+<div class="create-game" *ngIf="page === 'create game'">
   <h2>Erstelle ein neues Spiel</h2>
 
   <div class="form-group">
+    <label>Gib einen Session-Namen ein</label>
+    <input [(ngModel)]="session.name" type="text" maxlength="16" placeholder="Friday Fun" />
+  </div>
+  <div class="form-group">
     <label>Größe des Spielfelds</label>
-    <select (change)="updateBoardSize($event.target.value)">
-      <option (click)="updateBoardSize(3, 3)">3 x 3</option>
-      <option (click)="updateBoardSize(4, 3)">4 x 3</option>
-      <option (click)="updateBoardSize(4, 4)">4 x 4</option>
-      <option (click)="updateBoardSize(5, 4)">5 x 4</option>
-      <option (click)="updateBoardSize(5, 5)" selected>5 x 5</option>
-      <option (click)="updateBoardSize(6, 5)">6 x 5</option>
-      <option (click)="updateBoardSize(6, 6)">6 x 6</option>
+    <select [(ngModel)]="selectedBoardSize">
+      <option *ngFor="let size of boardSizes">{{ size }}</option>
     </select>
   </div>
   <div class="form-group">
     <label>Wähle ein Thema</label>
-    <select (change)="updateTheme($event.target.value)">
-      <option (click)="updateTheme('mixed')">Gemischte Begriffe</option>
-      <option (click)="updateTheme('over-18')">Ü 18</option>
-      <option (click)="updateTheme('party')">Party</option>
-      <option (click)="updateTheme('jazzchor')">Jazzchor</option>
-      <option (click)="updateTheme('corona')">Corona</option>
+    <select [(ngModel)]="selectedTheme">
+      <option *ngFor="let theme of themes">{{ theme.name }}</option>
     </select>
   </div>
   <div class="form-group">
-    <label>Lege die Teamfarben fest</label>
+    <label>Name des 1. Teams</label>
+    <input [(ngModel)]="session.teamOneName" type="text" maxlength="16" placeholder="Team A" />
   </div>
-  <button (click)="createGame()">Spiel erstellen</button>
-</ng-container>
+  <div class="form-group">
+    <label>Farbe des 1. Teams</label>
+    <input class="color-picker" [(colorPicker)]="session.teamOneColor" [style.background]="session.teamOneColor" />
+  </div>
+  <div class="form-group">
+    <label>Name des 2. Teams</label>
+    <input [(ngModel)]="session.teamTwoName" type="text" maxlength="16" placeholder="Team B" />
+  </div>
+  <div class="form-group">
+    <label>Farbe des 2. Teams</label>
+    <input class="color-picker" [(colorPicker)]="session.teamTwoColor" [style.background]="session.teamTwoColor" />
+  </div>
+  <div class="form-group">
+    <button (click)="createSession()">Spiel erstellen</button>
+    <button (click)="page = 'welcome'">Abbrechen</button>
+  </div>
+</div>
 
 <ng-container *ngIf="page === 'join game'">
   <h2>Nimm an einem Spiel teil</h2>
 </ng-container>
 
-<app-board *ngIf="page === 'play'" [horizontal]="horizontal" [vertical]="vertical" [wordCategory]="theme"></app-board>
+<div class="game" *ngIf="page === 'play'">
+  <app-players></app-players>
+  <app-board [horizontal]="horizontal" [vertical]="vertical" [wordCategory]="selectedTheme"></app-board>
+  <app-code-sheet></app-code-sheet>
+</div>

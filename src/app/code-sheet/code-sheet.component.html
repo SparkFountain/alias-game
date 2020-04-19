@@ -1,0 +1,7 @@
+<div class="row" *ngFor="let cardRow of cards">
+  <div
+    class="card"
+    *ngFor="let card of cardRow"
+    [ngStyle]="{ width: cardSize + 'px', height: cardSize + 'px', background: card }"
+  ></div>
+</div>

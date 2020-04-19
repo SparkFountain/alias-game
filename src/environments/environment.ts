@@ -3,6 +3,8 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
+  server: 'http://alias-game.sparkfountain.de',
+
   production: false
 };
 

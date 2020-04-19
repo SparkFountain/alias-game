@@ -2,14 +2,16 @@
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  width: 18vw;
-  height: 10vh;
+  // width: 20%;
+  height: 8vh;
   margin-bottom: 50px;
 
   background: peru;
   border-radius: 15px;
 
   font-size: 1.75vw;
+
+  cursor: pointer;
 
   .word {
     margin: 0;

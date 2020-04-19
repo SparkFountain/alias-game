@@ -1,6 +1,4 @@
-$white: #ddd;
-$black: #222;
-$sea: seagreen;
+@import 'variables.scss';
 
 body {
   background: url(assets/background.jpg);
@@ -15,6 +13,16 @@ h1 {
   color: #222;
 }
 
+button {
+  font-family: 'Baloo Bhaina 2', cursive;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px 20px;
+  box-shadow: 0 0 5px $black;
+  border: none;
+}
+
 .menu-buttons {
   display: flex;
   justify-content: space-around;
@@ -24,14 +32,73 @@ h1 {
   left: calc(50% - 250px);
 
   button {
-    font-family: 'Baloo Bhaina 2', cursive;
-    border-radius: 8px;
+    color: $white;
     background: $sea;
     border: 1px solid $sea;
-    cursor: pointer;
-    color: $white;
-    font-size: 18px;
-    padding: 8px 20px;
-    box-shadow: 0 0 5px $black;
+  }
+}
+
+.create-game {
+  width: $create-game-width;
+  height: auto;
+  margin-left: calc(50% - #{$create-game-width} / 2);
+  padding-bottom: 20px;
+  border: 1px solid $black;
+  border-radius: 10px;
+  background: $blur;
+  box-shadow: $dark-shadow;
+
+  h2 {
+    text-align: center;
+  }
+
+  .form-group {
+    margin: 10px 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    input,
+    select {
+      width: $create-game-field;
+      font-family: 'Baloo Bhaina 2', cursive;
+      font-size: 16px;
+      padding: $create-game-field-padding;
+    }
+
+    input {
+      box-sizing: border-box;
+    }
+
+    .color-picker {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      margin: 0;
+      padding: 0 !important;
+      border: none;
+      box-shadow: 0 0 3px $black;
+    }
+  }
+}
+
+.game {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+
+  width: 100%;
+  height: calc(100vh - 300px);
+
+  app-players {
+    width: 15vw;
+  }
+
+  app-board {
+    width: 60vw;
+  }
+
+  app-code-sheet {
+    width: 15vw;
   }
 }

@@ -1,0 +1,11 @@
+@import '../../variables.scss';
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+
+  .card {
+    border: 1px solid $black;
+  }
+}
