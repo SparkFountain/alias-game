@@ -44,13 +44,14 @@
 
   switch($_SERVER['REQUEST_URI']) {
     case '/create-session':
-      $sql = 'INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`) ';
+      $sql = 'INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`, `seed`) ';
       $sql .= 'VALUES (';
       $sql .= '\'' . $_POST['creator'] . '\', ';
       $sql .= '\'' . $_POST['name'] . '\', ';
       $sql .= $_POST['horizontal'] . ', ';
       $sql .= $_POST['vertical'] . ', ';
-      $sql .= '\'' . $_POST['theme'] . '\'';
+      $sql .= '\'' . $_POST['theme'] . '\',';
+      $sql .= '\'' . $_POST['seed'] . '\'';
       $sql .= ');';
       $result = $db->query($sql);
       if ($db->error) {
@@ -131,7 +132,7 @@
         echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
       }
 
-      $sqlSession = 'SELECT `name`, `creator`, `horizontal`, `vertical`, `theme` FROM `session` WHERE `name` = \'' . $_POST['session'] . '\'';
+      $sqlSession = 'SELECT `name`, `creator`, `horizontal`, `vertical`, `theme`, `seed` FROM `session` WHERE `name` = \'' . $_POST['session'] . '\'';
       $sessionResult = $db->query($sqlSession);
       if ($db->error) {
         echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
@@ -144,6 +145,7 @@
         $session['horizontal'] = $sessionRow['horizontal'];
         $session['vertical'] = $sessionRow['vertical'];
         $session['theme'] = $sessionRow['theme'];
+        $session['seed'] = $sessionRow['seed'];
       }
 
       $teams = array();
@@ -181,6 +183,7 @@
         'horizontal' => $session['horizontal'],
         'vertical' => $session['vertical'],
         'theme' => $session['theme'],
+        'seed' => $session['seed'],
         'teams' => $teams
       );
 

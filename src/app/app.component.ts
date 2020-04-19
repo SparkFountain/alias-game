@@ -108,6 +108,7 @@ export class AppComponent implements OnInit {
     body.set('horizontal', this.selectedBoardSize.substr(0, 1));
     body.set('vertical', this.selectedBoardSize.substr(4, 1));
     body.set('theme', this.themes.find((theme: Theme) => theme.name === this.selectedTheme).file);
+    body.set('seed', (Math.random() * 1000000).toString());
     body.set('teamOneName', this.session.teamOneName);
     body.set('teamOneColor', this.session.teamOneColor);
     body.set('teamTwoName', this.session.teamTwoName);

@@ -49,6 +49,19 @@ export class BoardComponent implements OnInit, AfterViewInit {
   }
 
   private shuffle(array: Array<any>) {
-    return array.sort(() => Math.random() - 0.5);
+    return array.sort(() => this.mulberry32(this.activeSession.seed) - 0.5);
+  }
+
+  /**
+   * A pseudo random number generator based on a given seed.
+   * See: https://stackoverflow.com/a/47593316/2764486
+   * @param a An integer number
+   */
+  private mulberry32(a: number) {
+    // tslint:disable: no-bitwise
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   }
 }

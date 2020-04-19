@@ -4,6 +4,7 @@ export interface ActiveSession {
   horizontal: number;
   vertical: number;
   theme: string;
+  seed: number;
   teams: Array<{
     name: string;
     color: string;
