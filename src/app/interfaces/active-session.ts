@@ -1,3 +1,5 @@
+import { Player } from './player';
+
 export interface ActiveSession {
   name: string;
   creator: string;
@@ -9,6 +11,6 @@ export interface ActiveSession {
     name: string;
     color: string;
     remainingCards: number;
-    players: string[];
+    players: Player[];
   }>;
 }

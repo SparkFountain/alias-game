@@ -7,9 +7,6 @@ import { JoinSession } from './interfaces/join-session';
 import { Response } from './interfaces/response';
 import { ActiveSession } from './interfaces/active-session';
 
-export const options = {
-  headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
-};
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -102,23 +99,47 @@ export class AppComponent implements OnInit {
       teamTwoColor: this.session.teamTwoColor
     };
 
+    this.participant = this.session.creator;
+
+    const seed = Math.random() * 1000000;
     const body = new URLSearchParams();
     body.set('creator', this.session.creator);
     body.set('name', this.session.name);
     body.set('horizontal', this.selectedBoardSize.substr(0, 1));
     body.set('vertical', this.selectedBoardSize.substr(4, 1));
     body.set('theme', this.themes.find((theme: Theme) => theme.name === this.selectedTheme).file);
-    body.set('seed', (Math.random() * 1000000).toString());
+    body.set('seed', seed.toString());
     body.set('teamOneName', this.session.teamOneName);
     body.set('teamOneColor', this.session.teamOneColor);
     body.set('teamTwoName', this.session.teamTwoName);
     body.set('teamTwoColor', this.session.teamTwoColor);
 
     this.http
-      .post(`${environment.server}/create-session`, body.toString(), options)
+      .post(`${environment.server}/create-session`, body.toString(), environment.formHeader)
       .toPromise()
-      .then((response: any) => {
-        console.info(`Session ${this.session.name} has been created:`, response);
+      .then(() => {
+        this.activeSession = {
+          name: this.session.name,
+          creator: this.session.creator,
+          horizontal: this.session.horizontal,
+          vertical: this.session.vertical,
+          theme: this.session.theme,
+          seed,
+          teams: [
+            {
+              name: this.session.teamOneName,
+              color: this.session.teamOneColor,
+              remainingCards: 0,
+              players: []
+            },
+            {
+              name: this.session.teamTwoName,
+              color: this.session.teamTwoColor,
+              remainingCards: 0,
+              players: []
+            }
+          ]
+        };
 
         this.page = 'play';
       })
@@ -150,10 +171,11 @@ export class AppComponent implements OnInit {
     body.set('team', this.selectedTeam2Join);
 
     this.http
-      .post(`${environment.server}/join-session`, body.toString(), options)
+      .post(`${environment.server}/join-session`, body.toString(), environment.formHeader)
       .toPromise()
       .then((response: Response<ActiveSession>) => {
         this.activeSession = response.data;
+        console.info('Active Session:', this.activeSession);
         this.page = 'play';
       })
       .catch((error: any) => {

@@ -1,6 +1,9 @@
 import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActiveSession } from '../interfaces/active-session';
+import { RandomService } from '../services/random.service';
+import { environment } from 'src/environments/environment';
+import { Player } from '../interfaces/player';
 
 @Component({
   selector: 'app-board',
@@ -9,6 +12,7 @@ import { ActiveSession } from '../interfaces/active-session';
 })
 export class BoardComponent implements OnInit, AfterViewInit {
   @Input() activeSession: ActiveSession;
+  @Input() participant: string;
 
   private wordPool: Array<string>;
   public words: Array<Array<any>>;
@@ -18,23 +22,23 @@ export class BoardComponent implements OnInit, AfterViewInit {
     height: number;
   };
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private random: RandomService) {
     this.words = [];
   }
 
-  ngOnInit(): void {
-    this.cardSize = {
-      width: (window.innerWidth * 0.6) / this.activeSession.horizontal - 10,
-      height: (window.innerHeight - 300) / this.activeSession.vertical
-    };
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     this.http
       .get(`/assets/themes/${this.activeSession.theme}.json`)
       .toPromise()
       .then((response: string[]) => {
-        this.wordPool = this.shuffle(response);
+        this.cardSize = {
+          width: (window.innerWidth * 0.6) / this.activeSession.horizontal - 10,
+          height: (window.innerHeight - 300) / this.activeSession.vertical
+        };
+
+        this.wordPool = this.random.shuffle(response, this.activeSession.seed);
 
         for (let y = 0; y < this.activeSession.vertical; y++) {
           const row: Array<string> = [];
@@ -48,20 +52,19 @@ export class BoardComponent implements OnInit, AfterViewInit {
       });
   }
 
-  private shuffle(array: Array<any>) {
-    return array.sort(() => this.mulberry32(this.activeSession.seed) - 0.5);
-  }
+  selectCard(x: number, y: number): void {
+    // TODO: check if participant is in active team
 
-  /**
-   * A pseudo random number generator based on a given seed.
-   * See: https://stackoverflow.com/a/47593316/2764486
-   * @param a An integer number
-   */
-  private mulberry32(a: number) {
-    // tslint:disable: no-bitwise
-    let t = (a += 0x6d2b79f5);
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    const body = new URLSearchParams();
+    body.set('participant', this.participant);
+    body.set('x', x.toString());
+    body.set('y', y.toString());
+
+    this.http
+      .post(`${environment.server}/select-card`, body.toString(), environment.formHeader)
+      .toPromise()
+      .then(() => {
+        console.info(`Selected card at ${x},${y}`);
+      });
   }
 }

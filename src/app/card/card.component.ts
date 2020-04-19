@@ -13,8 +13,4 @@ export class CardComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
-
-  select(): void {
-    console.info('Card has been selected');
-  }
 }

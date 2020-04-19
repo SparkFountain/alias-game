@@ -96,6 +96,6 @@
 
 <div class="game" *ngIf="page === 'play'">
   <app-players [activeSession]="activeSession"></app-players>
-  <app-board [activeSession]="activeSession"></app-board>
-  <app-code-sheet></app-code-sheet>
+  <app-board [activeSession]="activeSession" [participant]="participant"></app-board>
+  <app-code-sheet [activeSession]="activeSession"></app-code-sheet>
 </div>

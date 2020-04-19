@@ -120,16 +120,18 @@
       }
       break;
     case '/join-session':
-      $sql = 'INSERT INTO player (`name`, `session`, `team`) ';
-      $sql .= 'VALUES (';
-      $sql .= '\'' . $_POST['participant'] . '\', ';
-      $sql .= '\'' . $_POST['session'] . '\', ';
-      $sql .= '\'' . $_POST['team'] . '\'';
-      $sql .= ');';
+      if(!userExists($_POST['participant'])) {
+        $sql = 'INSERT INTO player (`name`, `session`, `team`) ';
+        $sql .= 'VALUES (';
+        $sql .= '\'' . $_POST['participant'] . '\', ';
+        $sql .= '\'' . $_POST['session'] . '\', ';
+        $sql .= '\'' . $_POST['team'] . '\'';
+        $sql .= ');';
 
-      $result = $db->query($sql);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+        $result = $db->query($sql);
+        if ($db->error) {
+          echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+        }
       }
 
       $sqlSession = 'SELECT `name`, `creator`, `horizontal`, `vertical`, `theme`, `seed` FROM `session` WHERE `name` = \'' . $_POST['session'] . '\'';
@@ -189,5 +191,33 @@
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionData));
       break;
+    case '/select-card':
+      $sql = 'UPDATE player SET ';
+      $sql .= '`selectedX` = ' . $_POST['x'] . ', ';
+      $sql .= '`selectedY` = ' . $_POST['y'];
+      $sql .= ' WHERE `name` = \'' . $_POST['participant'] . '\'';
+      $result = $db->query($sql);
+      if ($db->error) {
+        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+        die();
+      }
+
+      echo json_encode(array('status' => STATUS_SUCCESS));
+      break;
+    case '/fetch-session-state':
+      // 
+      break;
+  }
+
+  function userExists($user) {
+    $db = $GLOBALS['db'];
+
+    $sqlCheckUser = 'SELECT id FROM `player` WHERE `name` = \'' . $user . '\'';
+    $checkUserResult = $db->query($sqlCheckUser);
+    if ($db->error) {
+      echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+    }
+
+    return $checkUserResult->num_rows > 0;
   }
 ?>
