@@ -3,14 +3,20 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Session } from './interfaces/session';
 import { Theme } from './interfaces/theme';
+import { JoinSession } from './interfaces/join-session';
+import { Response } from './interfaces/response';
+import { ActiveSession } from './interfaces/active-session';
 
+export const options = {
+  headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
+};
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  public page: 'welcome' | 'create game' | 'join game' | 'play';
+  public page: 'welcome' | 'create session' | 'join session' | 'play';
   public horizontal: number;
   public vertical: number;
 
@@ -21,10 +27,19 @@ export class AppComponent implements OnInit {
   public boardSizes: string[];
   public selectedBoardSize: string;
 
+  public selectedSession: any;
+  public sessions2Join: JoinSession[];
+  public selectedSession2Join: JoinSession;
+
+  public participant: string;
+  public selectedTeam2Join: string;
+
+  public activeSession: ActiveSession;
+
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.page = 'create game';
+    this.page = 'welcome';
     this.horizontal = 5;
     this.vertical = 5;
 
@@ -66,9 +81,15 @@ export class AppComponent implements OnInit {
       teamTwoName: 'Team B',
       teamTwoColor: '#327ac0'
     };
+
+    this.sessions2Join = [];
+    this.selectedSession2Join = null;
+
+    this.participant = 'Mr(s). Anonymous';
+    this.selectedTeam2Join = '';
   }
 
-  createSession() {
+  createSession(): void {
     this.session = {
       creator: this.session.creator,
       name: this.session.name,
@@ -79,10 +100,6 @@ export class AppComponent implements OnInit {
       teamOneColor: this.session.teamOneColor,
       teamTwoName: this.session.teamTwoName,
       teamTwoColor: this.session.teamTwoColor
-    };
-
-    const options = {
-      headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
     };
 
     const body = new URLSearchParams();
@@ -106,6 +123,40 @@ export class AppComponent implements OnInit {
       })
       .catch((error: any) => {
         console.error('An error occurred:', error);
+      });
+  }
+
+  getSessions(): void {
+    this.http
+      .get(`${environment.server}/get-sessions`)
+      .toPromise()
+      .then((response: Response<JoinSession[]>) => {
+        this.sessions2Join = response.data;
+        this.page = 'join session';
+      });
+  }
+
+  selectSession2Join(joinSession: JoinSession): void {
+    this.selectedSession2Join = joinSession;
+  }
+
+  joinSession(): void {
+    if (this.selectedSession2Join === null) return;
+
+    const body = new URLSearchParams();
+    body.set('participant', this.participant);
+    body.set('session', this.selectedSession2Join.name);
+    body.set('team', this.selectedTeam2Join);
+
+    this.http
+      .post(`${environment.server}/join-session`, body.toString(), options)
+      .toPromise()
+      .then((response: Response<ActiveSession>) => {
+        this.activeSession = response.data;
+        this.page = 'play';
+      })
+      .catch((error: any) => {
+        console.error('Could not join session:', error);
       });
   }
 }

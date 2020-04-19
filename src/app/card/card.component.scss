@@ -1,15 +1,17 @@
+@import '../../variables.scss';
+
 .card {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  // width: 20%;
-  height: 8vh;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
 
-  background: peru;
+  background: url(/assets/card-background.jpg);
+
+  border: 1px inset $black;
   border-radius: 15px;
 
-  font-size: 1.75vw;
+  // font-size: 20px;
 
   cursor: pointer;
 
@@ -17,5 +19,6 @@
     margin: 0;
     padding: 0;
     display: flex;
+    text-shadow: 0 0 5px $white;
   }
 }

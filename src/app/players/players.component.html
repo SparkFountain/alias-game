@@ -1,17 +1,17 @@
 <div class="container">
-  <div class="session">Apfelkuchen</div>
+  <div class="session">{{ activeSession.name }}</div>
 
-  <div class="team" *ngFor="let team of teams; let i = index">
+  <div class="team" *ngFor="let team of activeSession.teams">
     <div class="team-info">
       <div class="team-color" [ngStyle]="{ background: team.color }"></div>
       <div class="team-meta">
-        <div>{{ teams[i].name }}</div>
-        <div>Noch {{ teams[i].remainingCards }} Karten</div>
+        <div>Team {{ team.name }}</div>
+        <div>Noch {{ team.remainingCards }} Karten</div>
       </div>
     </div>
 
     <ul>
-      <li *ngFor="let player of teams[i].players">{{ player }}</li>
+      <li *ngFor="let player of team.players">{{ player }}</li>
     </ul>
   </div>
 </div>

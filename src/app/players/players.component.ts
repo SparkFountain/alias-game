@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Team } from '../interfaces/team';
+import { ActiveSession } from '../interfaces/active-session';
 
 @Component({
   selector: 'app-players',
@@ -7,6 +8,8 @@ import { Team } from '../interfaces/team';
   styleUrls: ['./players.component.scss']
 })
 export class PlayersComponent implements OnInit {
+  @Input() activeSession: ActiveSession;
+
   public teams: Team[];
 
   constructor() {}

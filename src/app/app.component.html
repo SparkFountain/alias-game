@@ -2,12 +2,12 @@
 
 <ng-container *ngIf="page === 'welcome'">
   <div class="menu-buttons">
-    <button (click)="page = 'create game'">Neue Session erstellen</button>
-    <button (click)="page = 'join game'">Einer Session beitreten</button>
+    <button (click)="page = 'create session'">Neue Session erstellen</button>
+    <button (click)="getSessions()">Einer Session beitreten</button>
   </div>
 </ng-container>
 
-<div class="create-game" *ngIf="page === 'create game'">
+<div class="menu-container" *ngIf="page === 'create session'">
   <h2>Erstelle eine neue Session</h2>
 
   <div class="form-group">
@@ -52,12 +52,50 @@
   </div>
 </div>
 
-<ng-container *ngIf="page === 'join game'">
-  <h2>Nimm an einem Spiel teil</h2>
-</ng-container>
+<div class="menu-container" *ngIf="page === 'join session'">
+  <h2>Nimm an einer Session teil</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <td>Session</td>
+        <td>Erstellt von</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let session of sessions2Join"
+        [ngClass]="{ active: selectedSession2Join?.name === session.name }"
+        (click)="selectSession2Join(session)"
+      >
+        <td>{{ session.name }}</td>
+        <td>{{ session.creator }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <br />
+
+  <div class="form-group" *ngIf="selectedSession2Join">
+    <label>Wer bist du?</label>
+    <input [(ngModel)]="participant" type="text" maxlength="16" placeholder="Mr(s). Anonymous" />
+  </div>
+
+  <div class="form-group" *ngIf="selectedSession2Join">
+    <label>In welches Team gehst du?</label>
+    <select [(ngModel)]="selectedTeam2Join">
+      <option *ngFor="let team of selectedSession2Join.teams">{{ team }}</option>
+    </select>
+  </div>
+  <br />
+
+  <div class="form-group">
+    <button (click)="joinSession()">Beitreten</button>
+    <button (click)="page = 'welcome'">Abbrechen</button>
+  </div>
+</div>
 
 <div class="game" *ngIf="page === 'play'">
-  <app-players></app-players>
-  <app-board [horizontal]="horizontal" [vertical]="vertical" [wordCategory]="selectedTheme"></app-board>
+  <app-players [activeSession]="activeSession"></app-players>
+  <app-board [activeSession]="activeSession"></app-board>
   <app-code-sheet></app-code-sheet>
 </div>

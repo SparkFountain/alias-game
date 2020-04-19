@@ -10,6 +10,7 @@ h1 {
   text-align: center;
   font-family: 'Indie Flower', cursive;
   font-size: 80px;
+  margin: 20px 0;
   color: #222;
 }
 
@@ -38,7 +39,7 @@ button {
   }
 }
 
-.create-game {
+.menu-container {
   width: $create-game-width;
   height: auto;
   margin-left: calc(50% - #{$create-game-width} / 2);
@@ -79,6 +80,49 @@ button {
       border: none;
       box-shadow: 0 0 3px $black;
     }
+  }
+
+  table {
+    table-layout: fixed;
+    width: calc(100% - 100px);
+    margin: 0 50px;
+    box-sizing: border-box;
+    border-collapse: collapse;
+
+    thead {
+      font-weight: bold;
+    }
+
+    tbody {
+      tr {
+        cursor: pointer;
+
+        &.active {
+          background: $active;
+          color: lighten($white, 10%) !important; 
+        }
+
+        &:hover {
+          background: $sea;
+          color: lighten($white, 10%);
+
+          &.active {
+            background: darken($active, 10%);
+            color: lighten($white, 10%) !important; 
+          }
+        }
+      }
+    }
+
+    td {
+      padding: 5px 15px;
+    }
+  }
+
+  table,
+  th,
+  td {
+    border: 1px solid $black;
   }
 }
 

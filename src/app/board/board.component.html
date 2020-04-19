@@ -1,3 +1,3 @@
 <div class="row" *ngFor="let wordRow of words">
-  <app-card *ngFor="let word of wordRow" [word]="word"></app-card>
+  <app-card *ngFor="let word of wordRow" [word]="word" [width]="cardSize.width" [height]="cardSize.height"></app-card>
 </div>
