@@ -1,4 +1,5 @@
 export interface Session {
+  creator: string;
   name: string;
   horizontal: number;
   vertical: number;

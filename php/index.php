@@ -44,8 +44,9 @@
 
   switch($_SERVER['REQUEST_URI']) {
     case '/create-session':
-      $sql = 'INSERT INTO session (`name`, `horizontal`, `vertical`, `theme`, `teamOneName`, `teamOneColor`, `teamTwoName`, `teamTwoColor`) ';
+      $sql = 'INSERT INTO session (`creator`, `name`, `horizontal`, `vertical`, `theme`, `teamOneName`, `teamOneColor`, `teamTwoName`, `teamTwoColor`) ';
       $sql .= 'VALUES (';
+      $sql .= '\'' . $_POST['creator'] . '\', ';
       $sql .= '\'' . $_POST['name'] . '\', ';
       $sql .= $_POST['horizontal'] . ', ';
       $sql .= $_POST['vertical'] . ', ';

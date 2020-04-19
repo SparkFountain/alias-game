@@ -2,14 +2,18 @@
 
 <ng-container *ngIf="page === 'welcome'">
   <div class="menu-buttons">
-    <button (click)="page = 'create game'">Neues Spiel erstellen</button>
-    <button (click)="page = 'join game'">Einem Spiel beitreten</button>
+    <button (click)="page = 'create game'">Neue Session erstellen</button>
+    <button (click)="page = 'join game'">Einer Session beitreten</button>
   </div>
 </ng-container>
 
 <div class="create-game" *ngIf="page === 'create game'">
-  <h2>Erstelle ein neues Spiel</h2>
+  <h2>Erstelle eine neue Session</h2>
 
+  <div class="form-group">
+    <label>Wer bist du?</label>
+    <input [(ngModel)]="session.creator" type="text" maxlength="16" placeholder="Mr(s). Anonymous" />
+  </div>
   <div class="form-group">
     <label>Gib einen Session-Namen ein</label>
     <input [(ngModel)]="session.name" type="text" maxlength="16" placeholder="Friday Fun" />

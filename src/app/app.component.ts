@@ -56,6 +56,7 @@ export class AppComponent implements OnInit {
     this.selectedTheme = this.themes[0].name;
 
     this.session = {
+      creator: 'Mr(s). Anonymous',
       name: 'Friday Fun',
       horizontal: 5,
       vertical: 5,
@@ -69,6 +70,7 @@ export class AppComponent implements OnInit {
 
   createSession() {
     this.session = {
+      creator: this.session.creator,
       name: this.session.name,
       horizontal: Number(this.selectedBoardSize.substr(0, 1)),
       vertical: Number(this.selectedBoardSize.substr(4, 1)),
@@ -84,6 +86,7 @@ export class AppComponent implements OnInit {
     };
 
     const body = new URLSearchParams();
+    body.set('creator', this.session.creator);
     body.set('name', this.session.name);
     body.set('horizontal', this.selectedBoardSize.substr(0, 1));
     body.set('vertical', this.selectedBoardSize.substr(4, 1));
