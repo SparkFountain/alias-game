@@ -74,9 +74,9 @@ export class AppComponent implements OnInit {
       vertical: 5,
       theme: 'mixed',
       teamOneName: 'Team A',
-      teamOneColor: '#cd853f',
+      teamOneColor: '#c22b0c',
       teamTwoName: 'Team B',
-      teamTwoColor: '#327ac0'
+      teamTwoColor: '#0b6bca'
     };
 
     this.sessions2Join = [];
