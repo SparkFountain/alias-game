@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
-import { RandomService } from '../services/random.service';
 import { ActiveSession } from '../interfaces/active-session';
+import { RandomService } from 'src/services/random.service';
 
 @Component({
   selector: 'app-code-sheet',

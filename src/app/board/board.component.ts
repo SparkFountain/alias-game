@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActiveSession } from '../interfaces/active-session';
-import { RandomService } from '../services/random.service';
 import { environment } from 'src/environments/environment';
 import { Player } from '../interfaces/player';
+import { RandomService } from 'src/services/random.service';
 
 @Component({
   selector: 'app-board',

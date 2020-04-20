@@ -1,0 +1,18 @@
+<table *ngIf="activeSession">
+  <thead>
+    <tr>
+      <td>{{ activeSession.teams[0].name }}</td>
+      <td>{{ activeSession.teams[1].name }}</td>
+      <td>Neutral</td>
+      <td>Schwarz</td>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let event of historyEvents">
+      <td>{{ event.teamA }}</td>
+      <td>{{ event.teamB }}</td>
+      <td>{{ event.neutral }}</td>
+      <td>{{ event.black }}</td>
+    </tr>
+  </tbody>
+</table>

@@ -17,13 +17,13 @@ export class PlayersComponent implements OnInit {
   ngOnInit(): void {
     this.teams = [
       {
-        name: 'Team A',
+        name: 'A',
         color: 'peru',
         players: ['Andreas', 'Jenny', 'Leonie', 'Ferdinand', 'Franzi'],
         remainingCards: 8
       },
       {
-        name: 'Team B',
+        name: 'B',
         color: 'gray',
         players: ['Nancy', 'Stefan S.', 'Volker', 'Ulla', 'Maike'],
         remainingCards: 9

@@ -9,6 +9,7 @@ export class CardComponent implements OnInit {
   @Input() word: string;
   @Input() width: number;
   @Input() height: number;
+  @Input() flipCard: boolean;
 
   constructor() {}
 

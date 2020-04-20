@@ -33,6 +33,8 @@ export class AppComponent implements OnInit {
 
   public activeSession: ActiveSession;
 
+  public gameOver: boolean;
+
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -73,9 +75,9 @@ export class AppComponent implements OnInit {
       horizontal: 5,
       vertical: 5,
       theme: 'mixed',
-      teamOneName: 'Team A',
+      teamOneName: 'A',
       teamOneColor: '#c22b0c',
-      teamTwoName: 'Team B',
+      teamTwoName: 'B',
       teamTwoColor: '#0b6bca'
     };
 
@@ -84,6 +86,8 @@ export class AppComponent implements OnInit {
 
     this.participant = 'Mr(s). Anonymous';
     this.selectedTeam2Join = '';
+
+    this.gameOver = false;
   }
 
   createSession(): void {
@@ -181,5 +185,11 @@ export class AppComponent implements OnInit {
       .catch((error: any) => {
         console.error('Could not join session:', error);
       });
+  }
+
+  quitSession(): void {
+    // TODO: remove database session
+
+    this.page = 'welcome';
   }
 }

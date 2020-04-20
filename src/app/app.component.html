@@ -32,7 +32,7 @@
   </div>
   <div class="form-group">
     <label>Name des 1. Teams</label>
-    <input [(ngModel)]="session.teamOneName" type="text" maxlength="16" placeholder="Team A" />
+    <input [(ngModel)]="session.teamOneName" type="text" maxlength="16" placeholder="A" />
   </div>
   <div class="form-group">
     <label>Farbe des 1. Teams</label>
@@ -40,7 +40,7 @@
   </div>
   <div class="form-group">
     <label>Name des 2. Teams</label>
-    <input [(ngModel)]="session.teamTwoName" type="text" maxlength="16" placeholder="Team B" />
+    <input [(ngModel)]="session.teamTwoName" type="text" maxlength="16" placeholder="B" />
   </div>
   <div class="form-group">
     <label>Farbe des 2. Teams</label>
@@ -97,5 +97,10 @@
 <div class="game" *ngIf="page === 'play'">
   <app-players [activeSession]="activeSession"></app-players>
   <app-board [activeSession]="activeSession" [participant]="participant"></app-board>
-  <app-code-sheet [activeSession]="activeSession"></app-code-sheet>
+  <div class="ui-right">
+    <app-code-sheet [activeSession]="activeSession"></app-code-sheet>
+    <app-history [activeSession]="activeSession"></app-history>
+  </div>
+
+  <app-winner *ngIf="gameOver" [winnerTeam]="'Apfelkuchen'" (quit)="quitSession()"></app-winner>
 </div>

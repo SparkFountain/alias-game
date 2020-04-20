@@ -10,6 +10,8 @@ import { PlayersComponent } from './players/players.component';
 import { CodeSheetComponent } from './code-sheet/code-sheet.component';
 
 import { ColorPickerModule } from 'ngx-color-picker';
+import { HistoryComponent } from './history/history.component';
+import { WinnerComponent } from './winner/winner.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +19,9 @@ import { ColorPickerModule } from 'ngx-color-picker';
     CardComponent,
     BoardComponent,
     PlayersComponent,
-    CodeSheetComponent
+    CodeSheetComponent,
+    HistoryComponent,
+    WinnerComponent
   ],
   imports: [
     BrowserModule,
