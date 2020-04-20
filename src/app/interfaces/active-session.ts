@@ -1,4 +1,5 @@
 import { Player } from './player';
+import { Team } from './team';
 
 export interface ActiveSession {
   name: string;
@@ -7,10 +8,5 @@ export interface ActiveSession {
   vertical: number;
   theme: string;
   seed: number;
-  teams: Array<{
-    name: string;
-    color: string;
-    remainingCards: number;
-    players: Player[];
-  }>;
+  teams: Team[];
 }

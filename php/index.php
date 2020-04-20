@@ -42,139 +42,58 @@
   }
   $db->set_charset('utf8');
 
+  // ROUTING
   switch($_SERVER['REQUEST_URI']) {
     case '/create-session':
-      $sql = 'INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`, `seed`) ';
-      $sql .= 'VALUES (';
-      $sql .= '\'' . $_POST['creator'] . '\', ';
-      $sql .= '\'' . $_POST['name'] . '\', ';
-      $sql .= $_POST['horizontal'] . ', ';
-      $sql .= $_POST['vertical'] . ', ';
-      $sql .= '\'' . $_POST['theme'] . '\',';
-      $sql .= '\'' . $_POST['seed'] . '\'';
-      $sql .= ');';
-      $result = $db->query($sql);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-        die();
-      }
+      createSession($_POST['creator'], $_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme'], $_POST['seed']);
 
-      $sql = 'INSERT INTO `team` (`session`, `name`, `color`, `remainingCards`) ';
-      $sql .= 'VALUES (';
-      $sql .= '\'' . $_POST['name'] . '\', ';
-      $sql .= '\'' . $_POST['teamOneName'] . '\', ';
-      $sql .= '\'' . $_POST['teamOneColor'] . '\', ';
-      $sql .= '0';
-      $sql .= ');';
-      $result = $db->query($sql);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-        die();
-      }
+      createTeam($_POST['name'], $_POST['teamOneName'], $_POST['teamOneColor']);
+      createTeam($_POST['name'], $_POST['teamTwoName'], $_POST['teamTwoColor']);
 
-      $sql = 'INSERT INTO `team` (`session`, `name`, `color`, `remainingCards`) ';
-      $sql .= 'VALUES (';
-      $sql .= '\'' . $_POST['name'] . '\', ';
-      $sql .= '\'' . $_POST['teamTwoName'] . '\', ';
-      $sql .= '\'' . $_POST['teamTwoColor'] . '\', ';
-      $sql .= '0';
-      $sql .= ');';
-      $result = $db->query($sql);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-        die();
+      if(!userExists($_POST['creator'])) {
+        createPlayer($_POST['creator'], $_POST['activeUser'], $_POST['name'], $_POST['teamOneName']);
       }
 
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
     case '/get-sessions':
-      $sql = 'SELECT `name`, `creator` FROM `session`';
+      $sessions = getAllSessions();
+      $finalSessions = array();
+      foreach ($sessions as $session) {
+        $teams = getSessionTeams($session['name']);
+        $finalTeams = array();
+        foreach ($teams as $team) {
+          $players = getTeamPlayers($session['name'], $team['name']);
 
-      $result = $db->query($sql);
-      if (!$db->error) {
-        $sessions = array();
-        while($row = $result->fetch_assoc()) {
-          $teams = array();
-
-          $sqlTeams = 'SELECT `name`, `color`, `remainingCards` FROM `team` WHERE `session` = \'' . $row['name'] . '\'';
-          $teamResult = $db->query($sqlTeams);
-          if ($db->error) {
-            echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-            die();
-          }
-
-          while($teamRow = $teamResult->fetch_assoc()) {
-            array_push($teams, $teamRow['name']);
-          }
-
-          array_push($sessions, array(
-            'name' => $row['name'],
-            'creator' => $row['creator'],
-            'teams' => $teams
+          array_push($finalTeams, array(
+            'name' => $team['name'],
+            'color' => $team['creator'],
+            'players' => $players
           ));
         }
 
-        echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessions));
-      } else {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+        array_push($finalSessions, array(
+          'name' => $session['name'],
+          'creator' => $session['creator'],
+          'teams' => $finalTeams
+        ));
       }
+
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $finalSessions));
       break;
     case '/join-session':
       if(!userExists($_POST['participant'])) {
-        $sql = 'INSERT INTO player (`name`, `session`, `team`) ';
-        $sql .= 'VALUES (';
-        $sql .= '\'' . $_POST['participant'] . '\', ';
-        $sql .= '\'' . $_POST['session'] . '\', ';
-        $sql .= '\'' . $_POST['team'] . '\'';
-        $sql .= ');';
-
-        $result = $db->query($sql);
-        if ($db->error) {
-          echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-        }
+        createPlayer($_POST['participant'], $_POST['active'], $_POST['session'], $_POST['team']);
       }
 
-      $sqlSession = 'SELECT `name`, `creator`, `horizontal`, `vertical`, `theme`, `seed` FROM `session` WHERE `name` = \'' . $_POST['session'] . '\'';
-      $sessionResult = $db->query($sqlSession);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-      }
-
-      $session = array();
-      while($sessionRow = $sessionResult->fetch_assoc()) {
-        $session['name'] = $sessionRow['name'];
-        $session['creator'] = $sessionRow['creator'];
-        $session['horizontal'] = $sessionRow['horizontal'];
-        $session['vertical'] = $sessionRow['vertical'];
-        $session['theme'] = $sessionRow['theme'];
-        $session['seed'] = $sessionRow['seed'];
-      }
-
-      $teams = array();
-      $sqlTeams = 'SELECT `name`, `color`, `remainingCards` FROM `team` WHERE `session` = \'' . $session['name'] . '\'';
-      $teamResult = $db->query($sqlTeams);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-        die();
-      }
-
-      while($teamRow = $teamResult->fetch_assoc()) {
-        $players = array();
-        $sqlPlayers = 'SELECT `name` FROM `player` WHERE `session` = \'' . $session['name'] . '\' AND `team` = \'' . $teamRow['name'] . '\'';
-        $playerResult = $db->query($sqlPlayers);
-        if ($db->error) {
-          echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-          die();
-        }
-
-        while($playerRow = $playerResult->fetch_assoc()) {
-          array_push($players, $playerRow['name']);
-        }
-
-        array_push($teams, array(
-          'name' => $teamRow['name'],
-          'color' => $teamRow['color'],
-          'remainingCards' => $teamRow['remainingCards'],
+      $session = getSession($_POST['session']);
+      $teams = getSessionTeams($_POST['session']);
+      $finalTeams = array();
+      foreach($teams as $team) {
+        $players = getTeamPlayers($session['name'], $team['name']);
+        array_push($finalTeams, array(
+          'name' => $team['name'],
+          'color' => $team['color'],
           'players' => $players
         ));
       }
@@ -186,38 +105,196 @@
         'vertical' => $session['vertical'],
         'theme' => $session['theme'],
         'seed' => $session['seed'],
-        'teams' => $teams
+        'teams' => $finalTeams
       );
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionData));
       break;
     case '/select-card':
-      $sql = 'UPDATE player SET ';
-      $sql .= '`selectedX` = ' . $_POST['x'] . ', ';
-      $sql .= '`selectedY` = ' . $_POST['y'];
-      $sql .= ' WHERE `name` = \'' . $_POST['participant'] . '\'';
-      $result = $db->query($sql);
-      if ($db->error) {
-        echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
-        die();
-      }
-
+      selectCard($_POST['session'], $_POST['x'], $_POST['y']);
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
     case '/fetch-session-state':
       // 
       break;
   }
+  // END OF ROUTING
 
+  /**
+   * Checks if a database error occurred.
+   */
+  function checkForDatabaseError() {
+    $db = $GLOBALS['db'];
+
+    if ($db->error) {
+      echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+      die();
+    }
+  }
+
+  /**
+   * Check if a user already exists in the database.
+   */
   function userExists($user) {
     $db = $GLOBALS['db'];
 
-    $sqlCheckUser = 'SELECT id FROM `player` WHERE `name` = \'' . $user . '\'';
-    $checkUserResult = $db->query($sqlCheckUser);
-    if ($db->error) {
-      echo json_encode(array('status' => STATUS_FAIL, 'data' => $db->error));
+    $sql = "SELECT id FROM `player` WHERE `name` = '$user'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    return $result->num_rows > 0;
+  }
+
+  /**
+   * Creates a new session in the database.
+   */
+  function createSession($creator, $name, $horizontal, $vertical, $theme, $seed) {
+    $db = $GLOBALS['db'];
+
+    $sql = "INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`, `seed`) VALUES ('$creator', '$name', $horizontal, $vertical, '$theme', '$seed')";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  /**
+   * Creates a new team in the database.
+   */
+  function createTeam($session, $name, $color) {
+    $db = $GLOBALS['db'];
+
+    $sql = "INSERT INTO `team` (`session`, `name`, `color`) VALUES ('$session', '$name', '$color')";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  /**
+   * Creates a new user in the database.
+   */
+  function createPlayer($name, $active, $session, $team) {
+    $db = $GLOBALS['db'];
+
+    $active = $active ? 'true' : 'false';
+    $sql = "INSERT INTO `player` (`name`, `active`, `session`, `team`) VALUES ('$name', $active, '$session', '$team')";
+
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  /**
+   * Get all players of a certain team.
+   */
+  function getTeamPlayers($session, $team) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `name`, `active`, `selectedX`, `selectedY` FROM `player` WHERE `session` = '$session' AND `team` = '$team'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $players = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($players, array(
+        'name' => $row['name'],
+        'active' => $row['active'] ? true : false,
+        'selectedX' => $row['selectedX'],
+        'selectedY' => $row['selectedY']
+      ));
     }
 
-    return $checkUserResult->num_rows > 0;
+    return $players;
+  }
+
+  /**
+   * Gets all sessions from the database that could be joined.
+   */
+  function getAllSessions() {
+    $db = $GLOBALS['db'];
+
+    $sql = 'SELECT `name`, `creator` FROM `session`';
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $sessions = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($sessions, array(
+        'name' => $row['name'],
+        'creator' => $row['creator']
+      ));
+    }
+
+    return $sessions;
+  }
+
+  /**
+   * Get a certain session by name from the database.
+   */
+  function getSession($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `name`, `creator`, `horizontal`, `vertical`, `theme`, `seed` FROM `session` WHERE `name` = '$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    while($row = $result->fetch_assoc()) {
+      $sessions = array(
+        'name' => $row['name'],
+        'creator' => $row['creator'],
+        'horizontal' => $row['horizontal'],
+        'vertical' => $row['vertical'],
+        'theme' => $row['theme'],
+        'seed' => $row['seed']
+      );
+    }
+
+    return $sessions;
+  }
+
+  /**
+   * Get all teams (2) that belong a certain session.
+   */
+  function getSessionTeams($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `name`, `color` FROM `team` WHERE `session` = '$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $teams = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($teams, array(
+        'name' => $row['name'],
+        'color' => $row['color']
+      ));
+    }
+
+    return $teams;
+  }
+
+  /**
+   * Get all cards that have already been uncovered in a certain session.
+   */
+  function getSessionCards($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `x`, `y` FROM `card` WHERE `session` = '$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $cards = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($cards, array(
+        'x' => $row['x'],
+        'y' => $row['y']
+      ));
+    }
+
+    return $cards;
+  }
+
+  function selectCard($session, $x, $y) {
+    $db = $GLOBALS['db'];
+
+    $sql = "INSERT INTO `card` (`session`, `x`, `y`) VALUES ('$session', $x, $y)";
+    $db->query($sql);
+    checkForDatabaseError();
   }
 ?>

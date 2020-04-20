@@ -1,6 +1,7 @@
+import { Player } from './player';
+
 export interface Team {
   name: string;
   color: string;
-  players: string[];
-  remainingCards: number;
+  players: Player[];
 }

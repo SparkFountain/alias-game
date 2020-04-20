@@ -22,4 +22,12 @@ button {
   padding: 8px 20px;
   box-shadow: 0 0 5px $black;
   border: none;
+
+  &:hover {
+    background: darken($white, 5%);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
 }

@@ -15,6 +15,13 @@
     <input [(ngModel)]="session.creator" type="text" maxlength="16" placeholder="Mr(s). Anonymous" />
   </div>
   <div class="form-group">
+    <label>Bist du aktiver Spieler?</label>
+    <select [(ngModel)]="session.activeUser">
+      <option value="true">ja</option>
+      <option value="false">nein</option>
+    </select>
+  </div>
+  <div class="form-group">
     <label>Gib einen Session-Namen ein</label>
     <input [(ngModel)]="session.name" type="text" maxlength="16" placeholder="Friday Fun" />
   </div>
@@ -34,18 +41,19 @@
     <label>Name des 1. Teams</label>
     <input [(ngModel)]="session.teamOneName" type="text" maxlength="16" placeholder="A" />
   </div>
-  <div class="form-group">
+  <!-- <div class="form-group">
     <label>Farbe des 1. Teams</label>
     <input class="color-picker" [(colorPicker)]="session.teamOneColor" [style.background]="session.teamOneColor" />
-  </div>
+  </div> -->
   <div class="form-group">
     <label>Name des 2. Teams</label>
     <input [(ngModel)]="session.teamTwoName" type="text" maxlength="16" placeholder="B" />
   </div>
-  <div class="form-group">
+  <br />
+  <!-- <div class="form-group">
     <label>Farbe des 2. Teams</label>
     <input class="color-picker" [(colorPicker)]="session.teamTwoColor" [style.background]="session.teamTwoColor" />
-  </div>
+  </div> -->
   <div class="form-group">
     <button (click)="createSession()">Spiel erstellen</button>
     <button (click)="page = 'welcome'">Abbrechen</button>
@@ -86,10 +94,22 @@
       <option *ngFor="let team of selectedSession2Join.teams">{{ team }}</option>
     </select>
   </div>
-  <br />
+
+  <div class="form-group" *ngIf="selectedTeam2Join">
+    <label>Willst du aktiver Spieler sein?</label>
+    <select>
+      <option value="true">ja</option>
+      <option value="false">nein</option>
+    </select>
+  </div>
+  <br *ngIf="!selectedTeam2Join" />
+
+  <div class="form-group" *ngIf="selectedTeam2Join">
+    <p>In Team {{ selectedTeam2Join }} sind Dorothea (aktiv), Ulla, Lukas, Ferdinand und Michael.</p>
+  </div>
 
   <div class="form-group">
-    <button (click)="joinSession()">Beitreten</button>
+    <button (click)="joinSession()" [disabled]="!selectedSession2Join || !selectedTeam2Join">Beitreten</button>
     <button (click)="page = 'welcome'">Abbrechen</button>
   </div>
 </div>

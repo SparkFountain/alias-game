@@ -5,13 +5,17 @@
   justify-content: space-around;
   width: 500px;
   position: absolute;
-  top: 33%;
+  top: 50%;
   left: calc(50% - 250px);
 
   button {
     color: $white;
     background: $sea;
     border: 1px solid $sea;
+
+    &:hover {
+      background: darken($sea, 5%);
+    }
   }
 }
 
@@ -45,6 +49,10 @@
 
     input {
       box-sizing: border-box;
+    }
+
+    p {
+      line-height: 150%;
     }
 
     .color-picker {

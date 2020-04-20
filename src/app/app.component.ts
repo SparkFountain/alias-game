@@ -71,6 +71,7 @@ export class AppComponent implements OnInit {
 
     this.session = {
       creator: 'Mr(s). Anonymous',
+      activeUser: true,
       name: 'Friday Fun',
       horizontal: 5,
       vertical: 5,
@@ -93,6 +94,7 @@ export class AppComponent implements OnInit {
   createSession(): void {
     this.session = {
       creator: this.session.creator,
+      activeUser: this.session.activeUser,
       name: this.session.name,
       horizontal: Number(this.selectedBoardSize.substr(0, 1)),
       vertical: Number(this.selectedBoardSize.substr(4, 1)),
