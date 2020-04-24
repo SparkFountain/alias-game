@@ -4,6 +4,7 @@ import { RandomService } from 'src/services/random.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Response } from '../interfaces/response';
+import { Term } from '../interfaces/term';
 
 @Component({
   selector: 'app-code-sheet',
@@ -26,6 +27,15 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
     this.term = '';
     this.amount = 2;
     this.termDenied = false;
+
+    setInterval(() => {
+      this.http
+        .get(`${environment.server}/fetch-terms`, { params: { session: this.activeSession.name } })
+        .toPromise()
+        .then((response: Response<Term>) => {
+          console.info('Received Terms:', response);
+        });
+    }, 3000);
   }
 
   ngAfterViewInit(): void {
