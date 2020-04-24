@@ -7,10 +7,16 @@
 </div>
 
 <div class="form-group">
-  <label>Gib deinen nächsten Begriff ein</label>
-  <input />
-  <input type="number" min="0" max="8" value="2" />
+  <label><b>Gib deinen nächsten Begriff ein:</b></label>
 </div>
 <div class="form-group">
-  <button>Anfragen</button>
+  <input [(ngModel)]="term" maxlength="32" />
+  <input type="number" [(ngModel)]="amount" min="0" max="8" />
 </div>
+<div class="form-group active" *ngIf="termDenied">
+  Dein Begriff wurde nicht akzeptiert.
+</div>
+<div class="form-group">
+  <button (click)="requestTerm()">Anfragen</button>
+</div>
+<br />

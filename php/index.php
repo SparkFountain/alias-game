@@ -43,7 +43,7 @@
   $db->set_charset('utf8');
 
   // ROUTING
-  switch($_SERVER['REQUEST_URI']) {
+  switch(strtok($_SERVER["REQUEST_URI"], '?')) {
     case '/create-session':
       createSession($_POST['creator'], $_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme'], $_POST['seed']);
 
@@ -117,6 +117,14 @@
       break;
     case '/fetch-session-state':
       // 
+      break;
+    case '/request-term':
+      requestTerm($_POST['session'], $_POST['word'], $_POST['amount']);
+      echo json_encode(array('status' => STATUS_SUCCESS));
+      break;
+    case '/fetch-terms':
+      $terms = fetchTerms($_GET['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $terms));
       break;
   }
   // END OF ROUTING
@@ -298,5 +306,32 @@
     $sql = "INSERT INTO `card` (`session`, `x`, `y`) VALUES ('$session', $x, $y)";
     $db->query($sql);
     checkForDatabaseError();
+  }
+
+  function requestTerm($session, $word, $amount) {
+    $db = $GLOBALS['db'];
+
+    $sql = "INSERT INTO `term` (`session`, `word`, `amount`, `accepted`) VALUES ('$session', '$word', $amount, false)";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  function fetchTerms($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `id`, `word`, `amount` FROM `term` WHERE `session` = '$session' ORDER BY `id` ASC";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $terms = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($terms, array(
+        'id' => $row['id'],
+        'word' => $row['word'],
+        'amount' => $row['amount']
+      ));
+    }
+
+    return $terms;
   }
 ?>
