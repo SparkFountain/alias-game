@@ -6,6 +6,8 @@ import { Theme } from './interfaces/theme';
 import { JoinSession } from './interfaces/join-session';
 import { Response } from './interfaces/response';
 import { ActiveSession } from './interfaces/active-session';
+import { Player } from './interfaces/player';
+import { Team } from './interfaces/team';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +32,7 @@ export class AppComponent implements OnInit {
 
   public participant: string;
   public selectedTeam2Join: string;
+  public teamMembers: string;
 
   public activeSession: ActiveSession;
 
@@ -134,14 +137,14 @@ export class AppComponent implements OnInit {
           teams: [
             {
               name: this.session.teamOneName,
+              active: true,
               color: this.session.teamOneColor,
-              remainingCards: 0,
               players: []
             },
             {
               name: this.session.teamTwoName,
+              active: false,
               color: this.session.teamTwoColor,
-              remainingCards: 0,
               players: []
             }
           ]
@@ -166,6 +169,32 @@ export class AppComponent implements OnInit {
 
   selectSession2Join(joinSession: JoinSession): void {
     this.selectedSession2Join = joinSession;
+  }
+
+  updateTeamMembers(): void {
+    const selectedTeam = this.selectedSession2Join.teams.find((team: Team) => team.name === this.selectedTeam2Join);
+
+    if (selectedTeam.players.length === 0) {
+      this.teamMembers = ' ist noch niemand.';
+    } else if (selectedTeam.players.length === 1) {
+      this.teamMembers = ` ist ${selectedTeam.players[0].name}`;
+      if (selectedTeam.players[0].active) {
+        this.teamMembers += ' (aktiv)';
+      }
+    } else {
+      this.teamMembers = ' sind ';
+      selectedTeam.players.forEach((player: Player, index: number, array: Player[]) => {
+        this.teamMembers += player.name;
+        if (player.active) {
+          this.teamMembers += ' (aktiv)';
+        }
+        if (index < array.length - 2) {
+          this.teamMembers += ', ';
+        } else if (index === array.length - 2) {
+          this.teamMembers += ' und ';
+        }
+      });
+    }
   }
 
   joinSession(): void {

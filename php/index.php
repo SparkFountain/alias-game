@@ -94,6 +94,7 @@
         array_push($finalTeams, array(
           'name' => $team['name'],
           'color' => $team['color'],
+          'active' => $team['active'],
           'players' => $players
         ));
       }
@@ -254,7 +255,7 @@
   function getSessionTeams($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `name`, `color` FROM `team` WHERE `session` = '$session'";
+    $sql = "SELECT `name`, `color`, `active` FROM `team` WHERE `session` = '$session'";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -262,7 +263,8 @@
     while($row = $result->fetch_assoc()) {
       array_push($teams, array(
         'name' => $row['name'],
-        'color' => $row['color']
+        'color' => $row['color'],
+        'active' => $row['active'] ? 'true' : 'false'
       ));
     }
 

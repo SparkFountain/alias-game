@@ -90,8 +90,8 @@
 
   <div class="form-group" *ngIf="selectedSession2Join">
     <label>In welches Team gehst du?</label>
-    <select [(ngModel)]="selectedTeam2Join">
-      <option *ngFor="let team of selectedSession2Join.teams">{{ team }}</option>
+    <select [(ngModel)]="selectedTeam2Join" (change)="updateTeamMembers()">
+      <option *ngFor="let team of selectedSession2Join.teams">{{ team.name }}</option>
     </select>
   </div>
 
@@ -105,7 +105,7 @@
   <br *ngIf="!selectedTeam2Join" />
 
   <div class="form-group" *ngIf="selectedTeam2Join">
-    <p>In Team {{ selectedTeam2Join }} sind Dorothea (aktiv), Ulla, Lukas, Ferdinand und Michael.</p>
+    <p>In Team {{ selectedTeam2Join }} {{ teamMembers }}.</p>
   </div>
 
   <div class="form-group">

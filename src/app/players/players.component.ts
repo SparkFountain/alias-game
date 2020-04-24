@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { Team } from '../interfaces/team';
 import { ActiveSession } from '../interfaces/active-session';
 
@@ -7,27 +7,18 @@ import { ActiveSession } from '../interfaces/active-session';
   templateUrl: './players.component.html',
   styleUrls: ['./players.component.scss']
 })
-export class PlayersComponent implements OnInit {
+export class PlayersComponent implements AfterViewInit {
   @Input() activeSession: ActiveSession;
 
   public teams: Team[];
+  public activeTeam: string;
 
-  constructor() {}
+  constructor() {
+    this.activeTeam = '';
+  }
 
-  ngOnInit(): void {
-    this.teams = [
-      {
-        name: 'A',
-        color: 'peru',
-        players: ['Andreas', 'Jenny', 'Leonie', 'Ferdinand', 'Franzi'],
-        remainingCards: 8
-      },
-      {
-        name: 'B',
-        color: 'gray',
-        players: ['Nancy', 'Stefan S.', 'Volker', 'Ulla', 'Maike'],
-        remainingCards: 9
-      }
-    ];
+
+  ngAfterViewInit(): void {
+    this.activeTeam = this.activeSession.teams.find((team: Team) => team.active).name;
   }
 }

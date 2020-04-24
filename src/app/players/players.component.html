@@ -1,17 +1,26 @@
 <div class="container">
   <div class="session">{{ activeSession?.name }}</div>
 
+  <div class="active-team" *ngIf="activeTeam !== ''">
+    Team {{ activeTeam }} ist dran.
+  </div>
+
   <div class="team" *ngFor="let team of activeSession?.teams">
     <div class="team-info">
       <div class="team-color" [ngStyle]="{ background: team.color }"></div>
       <div class="team-meta">
-        <div>Team {{ team.name }}</div>
-        <div>Noch {{ team.remainingCards }} Karten</div>
+        <div class="team-meta-line"><b>Team {{ team.name }}</b></div>
+        <div class="team-meta-line">Noch x Karten übrig</div>
       </div>
     </div>
 
     <ul>
-      <li *ngFor="let player of team.players">{{ player }}</li>
+      <li *ngFor="let player of team.players">
+        <span [ngClass]="{ 'active-player': player.active }">
+          <i class="fa fa-user-circle-o" aria-hidden="true"></i>
+          {{ player.name }}
+        </span>
+      </li>
     </ul>
   </div>
 </div>

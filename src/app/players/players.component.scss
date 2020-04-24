@@ -8,13 +8,19 @@
   background: $blur;
 
   .session {
+    font-weight: bold;
     text-align: center;
     font-size: 28px;
   }
 
+  .active-team {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 30px;
+  }
+
   .team {
     padding: 10px 30px;
-
     .team-info {
       display: flex;
       flex-direction: row;
@@ -28,6 +34,24 @@
       height: 32px;
       border-radius: 50%;
       box-shadow: 0 0 5px $black;
+    }
+
+    .team-meta {
+      width: calc(100% - 32px);
+      margin-left: 10px;
+
+      .team-meta-line {
+        line-height: 130%;
+      }
+    }
+
+    .active-player {
+      color: $active;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0 !important;
     }
   }
 }
