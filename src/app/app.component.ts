@@ -110,14 +110,12 @@ export class AppComponent implements OnInit {
 
     this.participant = this.session.creator;
 
-    const seed = Math.random() * 1000000;
     const body = new URLSearchParams();
     body.set('creator', this.session.creator);
     body.set('name', this.session.name);
     body.set('horizontal', this.selectedBoardSize.substr(0, 1));
     body.set('vertical', this.selectedBoardSize.substr(4, 1));
     body.set('theme', this.themes.find((theme: Theme) => theme.name === this.selectedTheme).file);
-    body.set('seed', seed.toString());
     body.set('teamOneName', this.session.teamOneName);
     body.set('teamOneColor', this.session.teamOneColor);
     body.set('teamTwoName', this.session.teamTwoName);
@@ -133,7 +131,6 @@ export class AppComponent implements OnInit {
           horizontal: this.session.horizontal,
           vertical: this.session.vertical,
           theme: this.session.theme,
-          seed,
           teams: [
             {
               name: this.session.teamOneName,

@@ -2,8 +2,6 @@ import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActiveSession } from '../interfaces/active-session';
 import { environment } from 'src/environments/environment';
-import { Player } from '../interfaces/player';
-import { RandomService } from 'src/services/random.service';
 
 @Component({
   selector: 'app-board',
@@ -22,7 +20,7 @@ export class BoardComponent implements OnInit, AfterViewInit {
     height: number;
   };
 
-  constructor(private http: HttpClient, private random: RandomService) {
+  constructor(private http: HttpClient) {
     this.words = [];
   }
 
@@ -38,17 +36,7 @@ export class BoardComponent implements OnInit, AfterViewInit {
           height: (window.innerHeight - 300) / this.activeSession.vertical
         };
 
-        this.wordPool = this.random.shuffle(response, this.activeSession.seed);
-
-        for (let y = 0; y < this.activeSession.vertical; y++) {
-          const row: Array<string> = [];
-
-          for (let x = 0; x < this.activeSession.horizontal; x++) {
-            row.push(this.wordPool.pop());
-          }
-
-          this.words.push(row);
-        }
+        this.wordPool = [];
       });
   }
 

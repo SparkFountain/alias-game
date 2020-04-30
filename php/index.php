@@ -45,14 +45,17 @@
   // ROUTING
   switch(strtok($_SERVER["REQUEST_URI"], '?')) {
     case '/create-session':
-      createSession($_POST['creator'], $_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme'], $_POST['seed']);
+      createSession($_POST['creator'], $_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme']);
 
       createTeam($_POST['name'], $_POST['teamOneName'], $_POST['teamOneColor']);
       createTeam($_POST['name'], $_POST['teamTwoName'], $_POST['teamTwoColor']);
 
-      if(!userExists($_POST['creator'])) {
+      if(!playerInTeam($_POST['name'], $_POST['teamOneName'], $_POST['creator'])) {
         createPlayer($_POST['creator'], $_POST['activeUser'], $_POST['name'], $_POST['teamOneName']);
       }
+
+      createSessionTerms($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme']);
+      createSessionColors($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['teamOneColor'], $_POST['teamTwoColor']);
 
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
@@ -81,6 +84,10 @@
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $finalSessions));
       break;
+    case '/get-session-colors':
+      $sessionColors = getSessionColors($_GET['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionColors));
+      break;
     case '/join-session':
       if(!userExists($_POST['participant'])) {
         createPlayer($_POST['participant'], $_POST['active'], $_POST['session'], $_POST['team']);
@@ -105,7 +112,6 @@
         'horizontal' => $session['horizontal'],
         'vertical' => $session['vertical'],
         'theme' => $session['theme'],
-        'seed' => $session['seed'],
         'teams' => $finalTeams
       );
 
@@ -147,7 +153,17 @@
   function userExists($user) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT id FROM `player` WHERE `name` = '$user'";
+    $sql = "SELECT id FROM `player` WHERE `name`='$user'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    return $result->num_rows > 0;
+  }
+
+  function playerInTeam($session, $team, $player) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT id FROM `player` WHERE `session`='$session' AND `team`='$team' AND `name`='$player'";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -157,11 +173,127 @@
   /**
    * Creates a new session in the database.
    */
-  function createSession($creator, $name, $horizontal, $vertical, $theme, $seed) {
+  function createSession($creator, $name, $horizontal, $vertical, $theme) {
     $db = $GLOBALS['db'];
 
-    $sql = "INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`, `seed`) VALUES ('$creator', '$name', $horizontal, $vertical, '$theme', '$seed')";
+    $sql = "INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`) VALUES ('$creator', '$name', $horizontal, $vertical, '$theme')";
     $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  /**
+   * Creates random terms for a session.
+   */
+  function createSessionTerms($session, $horizontal, $vertical, $category) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `word` FROM `term` WHERE `category`='$category'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $terms = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($terms, $row['word']);
+    }
+    shuffle($terms);
+
+    $numberOfCards = $horizontal * $vertical;
+
+    if(count($terms) < $numberOfCards) {
+      die('The selected theme has too few terms!');
+    }
+
+    $sessionTermsSql = "INSERT INTO `session-terms` (`session`, `term`) VALUES ";
+    for ($i = 0; $i < $numberOfCards; $i++) {
+      $sessionTermsSql .= "('$session', '$terms[$i]')";
+      if($i < $numberOfCards-1) {
+        $sessionTermsSql .= ", ";
+      }
+    }
+
+    $db->query($sessionTermsSql);
+    checkForDatabaseError();
+  }
+
+  /**
+   * Creates random colors for a session.
+   */
+  function createSessionColors($session, $horizontal, $vertical, $teamAColor, $teamBColor) {
+    $db = $GLOBALS['db'];
+
+    switch ($horizontal * $vertical) {
+      case 9:
+        $teamA = 3;
+        $teamB = 3;
+        $neutral = 2;
+        $black = 1;
+        break;
+      case 12:
+        $teamA = 4;
+        $teamB = 4;
+        $neutral = 3;
+        $black = 1;
+        break;
+      case 16:
+        $teamA = 5;
+        $teamB = 5;
+        $neutral = 5;
+        $black = 1;
+        break;
+      case 20:
+        $teamA = 7;
+        $teamB = 7;
+        $neutral = 5;
+        $black = 1;
+        break;
+      case 25:
+        $teamA = 8;
+        $teamB = 8;
+        $neutral = 8;
+        $black = 1;
+        break;
+      case 30:
+        $teamA = 10;
+        $teamB = 10;
+        $neutral = 8;
+        $black = 2;
+        break;
+      case 36:
+        $teamA = 11;
+        $teamB = 11;
+        $neutral = 11;
+        $black = 3;
+        break;
+    }
+
+    $colors = array();
+    for ($i = 0; $i < $teamA; $i++) {
+      array_push($colors, $teamAColor);
+    }
+    for ($i = 0; $i < $teamB; $i++) {
+      array_push($colors, $teamBColor);
+    }
+    for ($i = 0; $i < $neutral; $i++) {
+      array_push($colors, '#ddd');
+    }
+    for ($i = 0; $i < $black; $i++) {
+      array_push($colors, '#222');
+    }
+
+    shuffle($colors);
+
+    $sessionColorsSql = "INSERT INTO `session-colors` (`session`, `x`, `y`, `color`) VALUES ";
+    for($y = 0; $y < $vertical; $y++) {
+      for($x = 0; $x < $horizontal; $x++) {
+        $currentColor = $colors[$y*$horizontal + $x];
+        $sessionColorsSql .= "('$session', $x, $y, '$currentColor')";
+        if(($x+1) * ($y+1) < ($horizontal*$vertical)-1) {
+          $sessionColorsSql .= ", ";
+        }
+      }
+    }
+
+    $db->query($sessionColorsSql);
     checkForDatabaseError();
   }
 
@@ -239,7 +371,7 @@
   function getSession($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `name`, `creator`, `horizontal`, `vertical`, `theme`, `seed` FROM `session` WHERE `name` = '$session'";
+    $sql = "SELECT `name`, `creator`, `horizontal`, `vertical`, `theme` FROM `session` WHERE `name` = '$session'";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -249,8 +381,7 @@
         'creator' => $row['creator'],
         'horizontal' => $row['horizontal'],
         'vertical' => $row['vertical'],
-        'theme' => $row['theme'],
-        'seed' => $row['seed']
+        'theme' => $row['theme']
       );
     }
 
@@ -258,7 +389,7 @@
   }
 
   /**
-   * Get all teams (2) that belong a certain session.
+   * Get all teams (2) that belong to a certain session.
    */
   function getSessionTeams($session) {
     $db = $GLOBALS['db'];
@@ -277,6 +408,28 @@
     }
 
     return $teams;
+  }
+
+  /**
+   * Get all colors that belong to a certain session.
+   */
+  function getSessionColors($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `x`, `y`, `color` FROM `session-colors` WHERE `session` = '$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $colors = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($colors, array(
+        'x' => $row['x'],
+        'y' => $row['y'],
+        'color' => $row['color']
+      ));
+    }
+
+    return $colors;
   }
 
   /**

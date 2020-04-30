@@ -1,8 +1,8 @@
-<div class="row" *ngFor="let cardRow of cards">
+<div class="row" *ngFor="let colorRow of colors">
   <div
-    class="card"
-    *ngFor="let card of cardRow"
-    [ngStyle]="{ width: cardSize + 'px', height: cardSize + 'px', background: card }"
+    class="color"
+    *ngFor="let color of colorRow"
+    [ngStyle]="{ width: colorSize + 'px', height: colorSize + 'px', background: color }"
   ></div>
 </div>
 
