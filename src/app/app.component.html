@@ -15,13 +15,6 @@
     <input [(ngModel)]="session.creator" type="text" maxlength="16" placeholder="Mr(s). Anonymous" />
   </div>
   <div class="form-group">
-    <label>Bist du aktiver Spieler?</label>
-    <select [(ngModel)]="session.activeUser">
-      <option value="true">ja</option>
-      <option value="false">nein</option>
-    </select>
-  </div>
-  <div class="form-group">
     <label>Gib einen Session-Namen ein</label>
     <input [(ngModel)]="session.name" type="text" maxlength="16" placeholder="Friday Fun" />
   </div>
@@ -94,14 +87,6 @@
       <option *ngFor="let team of selectedSession2Join.teams">{{ team.name }}</option>
     </select>
   </div>
-
-  <div class="form-group" *ngIf="selectedTeam2Join">
-    <label>Willst du aktiver Spieler sein?</label>
-    <select>
-      <option value="true">ja</option>
-      <option value="false">nein</option>
-    </select>
-  </div>
   <br *ngIf="!selectedTeam2Join" />
 
   <div class="form-group" *ngIf="selectedTeam2Join">
@@ -115,10 +100,10 @@
 </div>
 
 <div class="game" *ngIf="page === 'play'">
-  <app-players [activeSession]="activeSession"></app-players>
+  <app-players [activeSession]="activeSession" (activePlayer)="iAmActivePlayer = $event"></app-players>
   <app-board [activeSession]="activeSession" [participant]="participant"></app-board>
   <div class="ui-right">
-    <app-code-sheet [activeSession]="activeSession"></app-code-sheet>
+    <app-code-sheet [activeSession]="activeSession" *ngIf="iAmActivePlayer"></app-code-sheet>
     <app-history [activeSession]="activeSession"></app-history>
   </div>
 

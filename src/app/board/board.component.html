@@ -1,7 +1,7 @@
-<div class="row" *ngFor="let wordRow of words; let y = index">
+<div class="row" *ngFor="let cardRow of cards; let y = index">
   <app-card
     (click)="selectCard(x, y)"
-    *ngFor="let word of wordRow; let x = index"
+    *ngFor="let word of cardRow; let x = index"
     [word]="word"
     [width]="cardSize.width"
     [height]="cardSize.height"

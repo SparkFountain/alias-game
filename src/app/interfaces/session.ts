@@ -1,6 +1,5 @@
 export interface Session {
   creator: string;
-  activeUser: boolean;
   name: string;
   horizontal: number;
   vertical: number;

@@ -2,6 +2,7 @@ import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActiveSession } from '../interfaces/active-session';
 import { environment } from 'src/environments/environment';
+import { Card } from '../interfaces/card';
 
 @Component({
   selector: 'app-board',
@@ -12,32 +13,32 @@ export class BoardComponent implements OnInit, AfterViewInit {
   @Input() activeSession: ActiveSession;
   @Input() participant: string;
 
-  private wordPool: Array<string>;
-  public words: Array<Array<any>>;
+  public cards: Array<string[]>;
 
   public cardSize: {
     width: number;
     height: number;
   };
 
-  constructor(private http: HttpClient) {
-    this.words = [];
-  }
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    this.http
-      .get(`/assets/themes/${this.activeSession.theme}.json`)
-      .toPromise()
-      .then((response: string[]) => {
-        this.cardSize = {
-          width: (window.innerWidth * 0.6) / this.activeSession.horizontal - 10,
-          height: (window.innerHeight - 300) / this.activeSession.vertical
-        };
-
-        this.wordPool = [];
+    setTimeout(() => {
+      this.cards = [];
+      this.activeSession.cards.forEach((card: Card) => {
+        if (!this.cards[card.y]) {
+          this.cards.push([]);
+        }
+        this.cards[card.y][card.x] = card.word;
       });
+
+      this.cardSize = {
+        width: (window.innerWidth * 0.6) / this.activeSession.horizontal - 10,
+        height: (window.innerHeight - 300) / this.activeSession.vertical
+      };
+    }, 10);
   }
 
   selectCard(x: number, y: number): void {

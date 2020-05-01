@@ -51,13 +51,38 @@
       createTeam($_POST['name'], $_POST['teamTwoName'], $_POST['teamTwoColor']);
 
       if(!playerInTeam($_POST['name'], $_POST['teamOneName'], $_POST['creator'])) {
-        createPlayer($_POST['creator'], $_POST['activeUser'], $_POST['name'], $_POST['teamOneName']);
+        createPlayer($_POST['creator'], $_POST['name'], $_POST['teamOneName']);
       }
 
       createSessionTerms($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme']);
       createSessionColors($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['teamOneColor'], $_POST['teamTwoColor']);
 
-      echo json_encode(array('status' => STATUS_SUCCESS));
+      $session = getSession($_POST['name']);
+      $teams = getSessionTeams($_POST['name']);
+      $finalTeams = array();
+      foreach($teams as $team) {
+        $players = getTeamPlayers($session['name'], $team['name']);
+        array_push($finalTeams, array(
+          'name' => $team['name'],
+          'color' => $team['color'],
+          'active' => $team['active'],
+          'players' => $players
+        ));
+      }
+
+      $cards = getSessionTerms($_POST['name']);
+
+      $sessionData = array(
+        'name' => $_POST['name'],
+        'creator' => $session['creator'],
+        'horizontal' => $session['horizontal'],
+        'vertical' => $session['vertical'],
+        'theme' => $session['theme'],
+        'teams' => $finalTeams,
+        'cards' => $cards
+      );
+
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionData));
       break;
     case '/get-sessions':
       $sessions = getAllSessions();
@@ -89,8 +114,8 @@
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionColors));
       break;
     case '/join-session':
-      if(!userExists($_POST['participant'])) {
-        createPlayer($_POST['participant'], $_POST['active'], $_POST['session'], $_POST['team']);
+      if(!playerInTeam($_POST['session'], $_POST['team'], $_POST['participant'])) {
+        createPlayer($_POST['participant'], $_POST['session'], $_POST['team']);
       }
 
       $session = getSession($_POST['session']);
@@ -106,13 +131,16 @@
         ));
       }
 
+      $cards = getSessionTerms($_POST['session']);
+
       $sessionData = array(
         'name' => $_POST['session'],
         'creator' => $session['creator'],
         'horizontal' => $session['horizontal'],
         'vertical' => $session['vertical'],
         'theme' => $session['theme'],
-        'teams' => $finalTeams
+        'teams' => $finalTeams,
+        'cards' => $cards
       );
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionData));
@@ -203,11 +231,14 @@
       die('The selected theme has too few terms!');
     }
 
-    $sessionTermsSql = "INSERT INTO `session-terms` (`session`, `term`) VALUES ";
-    for ($i = 0; $i < $numberOfCards; $i++) {
-      $sessionTermsSql .= "('$session', '$terms[$i]')";
-      if($i < $numberOfCards-1) {
-        $sessionTermsSql .= ", ";
+    $sessionTermsSql = "INSERT INTO `session-terms` (`session`, `x`, `y`, `term`) VALUES ";
+    for ($y = 0; $y < $vertical; $y++) {
+      for ($x = 0; $x < $horizontal; $x++) {
+        $term = $terms[$y * $horizontal + $x];
+        $sessionTermsSql .= "('$session', $x, $y, '$term')";
+        if(($x+1) * ($y+1) < ($horizontal*$vertical)-1) {
+          $sessionTermsSql .= ", ";
+        }
       }
     }
 
@@ -311,11 +342,11 @@
   /**
    * Creates a new user in the database.
    */
-  function createPlayer($name, $active, $session, $team) {
+  function createPlayer($name, $session, $team) {
     $db = $GLOBALS['db'];
 
     $active = $active ? 'true' : 'false';
-    $sql = "INSERT INTO `player` (`name`, `active`, `session`, `team`) VALUES ('$name', $active, '$session', '$team')";
+    $sql = "INSERT INTO `player` (`name`, `session`, `team`) VALUES ('$name', '$session', '$team')";
 
     $db->query($sql);
     checkForDatabaseError();
@@ -433,12 +464,12 @@
   }
 
   /**
-   * Get all cards that have already been uncovered in a certain session.
+   * Get all terms of a certain session.
    */
-  function getSessionCards($session) {
+  function getSessionTerms($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `x`, `y` FROM `card` WHERE `session` = '$session'";
+    $sql = "SELECT `x`, `y`, `term` FROM `session-terms` WHERE `session` = '$session'";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -446,7 +477,8 @@
     while($row = $result->fetch_assoc()) {
       array_push($cards, array(
         'x' => $row['x'],
-        'y' => $row['y']
+        'y' => $row['y'],
+        'word' => $row['term']
       ));
     }
 

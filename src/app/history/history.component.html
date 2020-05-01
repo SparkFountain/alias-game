@@ -1,18 +1,24 @@
 <table *ngIf="activeSession">
   <thead>
     <tr>
-      <td>{{ activeSession.teams[0].name }}</td>
-      <td>{{ activeSession.teams[1].name }}</td>
-      <td>Neutral</td>
-      <td>Schwarz</td>
+      <td>Begriff</td>
+      <td>Treffer</td>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let event of historyEvents">
-      <td>{{ event.teamA }}</td>
-      <td>{{ event.teamB }}</td>
-      <td>{{ event.neutral }}</td>
-      <td>{{ event.black }}</td>
+      <td>
+        <div class="color" [ngStyle]="{ background: event.teamColor }"></div>
+        {{ event.term }}
+      </td>
+      <td>
+        <div *ngIf="event.hits.teamA > 0" class="color" [ngStyle]="{ background: 'red' }">{{ event.hits.teamA }}</div>
+        <div *ngIf="event.hits.teamB > 0" class="color" [ngStyle]="{ background: 'blue' }">{{ event.hits.teamB }}</div>
+        <div *ngIf="event.hits.neutral > 0" class="color" [ngStyle]="{ background: '#ddd' }">
+          {{ event.hits.neutral }}
+        </div>
+        <div *ngIf="event.hits.black > 0" class="color" [ngStyle]="{ background: '#222' }">{{ event.hits.black }}</div>
+      </td>
     </tr>
   </tbody>
 </table>

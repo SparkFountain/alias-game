@@ -17,10 +17,24 @@ export class HistoryComponent implements OnInit {
   ngOnInit(): void {
     this.historyEvents = [
       {
-        teamA: 2,
-        teamB: 0,
-        neutral: 0,
-        black: 0
+        term: 'Urlaub 4',
+        teamColor: '#ff0000',
+        hits: {
+          teamA: 2,
+          teamB: 0,
+          neutral: 1,
+          black: 0
+        }
+      },
+      {
+        term: 'Winter 2',
+        teamColor: '#0000ff',
+        hits: {
+          teamA: 0,
+          teamB: 2,
+          neutral: 0,
+          black: 0
+        }
       }
     ];
   }

@@ -40,26 +40,28 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.colors = [];
-    for (let y = 0; y < this.activeSession.vertical; y++) {
-      this.colors.push([]);
+    setTimeout(() => {
+      this.colors = [];
+      for (let y = 0; y < this.activeSession.vertical; y++) {
+        this.colors.push([]);
 
-      for (let x = 0; x < this.activeSession.horizontal; x++) {
-        this.colors[y].push('');
+        for (let x = 0; x < this.activeSession.horizontal; x++) {
+          this.colors[y].push('');
+        }
       }
-    }
 
-    this.http
-      .get(`${environment.server}/get-session-colors`, { params: { session: this.activeSession.name } })
-      .toPromise()
-      .then((response: Response<Color[]>) => {
-        response.data.forEach((color: Color) => {
-          this.colors[color.y][color.x] = color.color;
+      this.http
+        .get(`${environment.server}/get-session-colors`, { params: { session: this.activeSession.name } })
+        .toPromise()
+        .then((response: Response<Color[]>) => {
+          response.data.forEach((color: Color) => {
+            this.colors[color.y][color.x] = color.color;
+          });
+          console.info('');
         });
-        console.info('');
-      });
 
-    this.colorSize = (window.innerWidth * 0.15) / 5;
+      this.colorSize = (window.innerWidth * 0.15) / 5;
+    }, 10);
   }
 
   requestTerm(): void {

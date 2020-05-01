@@ -35,6 +35,7 @@ export class AppComponent implements OnInit {
   public teamMembers: string;
 
   public activeSession: ActiveSession;
+  public iAmActivePlayer: boolean;
 
   public gameOver: boolean;
 
@@ -48,6 +49,7 @@ export class AppComponent implements OnInit {
     this.boardSizes = ['3 x 3', '4 x 3', '4 x 4', '5 x 4', '5 x 5', '6 x 5', '6 x 6'];
     this.selectedBoardSize = this.boardSizes[4];
 
+    // TODO: allow multiple themes?
     this.themes = [
       {
         name: 'Gemischte Begriffe',
@@ -57,24 +59,23 @@ export class AppComponent implements OnInit {
         name: 'Ü 18',
         file: 'over-18'
       },
-      {
-        name: 'Party',
-        file: 'party'
-      },
+      // {
+      //   name: 'Party',
+      //   file: 'party'
+      // },
       {
         name: 'Jazzchor',
         file: 'jazzchor'
-      },
-      {
-        name: 'Corona',
-        file: 'corona'
       }
+      // {
+      //   name: 'Corona',
+      //   file: 'corona'
+      // }
     ];
     this.selectedTheme = this.themes[0].name;
 
     this.session = {
       creator: 'Mr(s). Anonymous',
-      activeUser: true,
       name: 'Friday Fun',
       horizontal: 5,
       vertical: 5,
@@ -91,13 +92,14 @@ export class AppComponent implements OnInit {
     this.participant = 'Mr(s). Anonymous';
     this.selectedTeam2Join = '';
 
+    this.iAmActivePlayer = false;
+
     this.gameOver = false;
   }
 
   createSession(): void {
     this.session = {
       creator: this.session.creator,
-      activeUser: this.session.activeUser,
       name: this.session.name,
       horizontal: Number(this.selectedBoardSize.substr(0, 1)),
       vertical: Number(this.selectedBoardSize.substr(4, 1)),
@@ -124,29 +126,9 @@ export class AppComponent implements OnInit {
     this.http
       .post(`${environment.server}/create-session`, body.toString(), environment.formHeader)
       .toPromise()
-      .then(() => {
-        this.activeSession = {
-          name: this.session.name,
-          creator: this.session.creator,
-          horizontal: this.session.horizontal,
-          vertical: this.session.vertical,
-          theme: this.session.theme,
-          teams: [
-            {
-              name: this.session.teamOneName,
-              active: true,
-              color: this.session.teamOneColor,
-              players: []
-            },
-            {
-              name: this.session.teamTwoName,
-              active: false,
-              color: this.session.teamTwoColor,
-              players: []
-            }
-          ]
-        };
-
+      .then((response: Response<ActiveSession>) => {
+        this.activeSession = response.data;
+        console.info('Active Session:', this.activeSession);
         this.page = 'play';
       })
       .catch((error: any) => {
