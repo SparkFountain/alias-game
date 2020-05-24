@@ -11,7 +11,8 @@ h1 {
   font-family: 'Indie Flower', cursive;
   font-size: 80px;
   margin: 20px 0;
-  color: #222;
+  text-shadow: 0 0 10px $sea;
+  color: $black;
 }
 
 button {

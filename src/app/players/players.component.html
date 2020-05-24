@@ -24,5 +24,10 @@
     </ul>
   </div>
 
-  <button class="active-player-request" *ngIf="true" (click)="requestActivePlayer()">Ich möchte Begriffe erklären.</button>
+  <button class="active-player-request" *ngIf="!iAmActivePlayer" (click)="requestActivePlayer()">Ich möchte Begriffe erklären.</button>
+
+  <button *ngIf="!exchangeCards" (click)="exchangeCards = true">Begriffe tauschen...</button>
+  <button *ngIf="exchangeCards" (click)="exchangeCards = false">Begriffe tauschen beenden</button>
+
+  <button class="leave-session" (click)="leaveSession()">Session verlassen</button>
 </div>

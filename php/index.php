@@ -54,7 +54,6 @@
         createPlayer($_POST['creator'], $_POST['name'], $_POST['teamOneName']);
       }
 
-      createSessionTerms($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme']);
       createSessionColors($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['teamOneColor'], $_POST['teamTwoColor']);
 
       $session = getSession($_POST['name']);
@@ -149,8 +148,25 @@
       selectCard($_POST['session'], $_POST['x'], $_POST['y']);
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
-    case '/fetch-session-state':
-      // 
+    case '/fetch-cards':
+      $cards = getSessionTerms($_GET['session']);
+
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $cards));
+      break;
+    case '/fetch-teams':
+      $teams = getSessionTeams($_GET['session']);
+      $finalTeams = array();
+      foreach($teams as $team) {
+        $players = getTeamPlayers($_GET['session'], $team['name']);
+        array_push($finalTeams, array(
+          'name' => $team['name'],
+          'color' => $team['color'],
+          'active' => $team['active'],
+          'players' => $players
+        ));
+      }
+
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $finalTeams));
       break;
     case '/request-term':
       requestTerm($_POST['session'], $_POST['word'], $_POST['amount']);
@@ -160,6 +176,12 @@
       $terms = fetchTerms($_GET['session']);
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $terms));
       break;
+    case '/request-active-player':
+      requestActivePlayer();
+      break;
+    case '/exchange-term':
+      exchangeTerm($_POST['session'], $_POST['x'], $_POST['y']);
+
   }
   // END OF ROUTING
 
@@ -204,45 +226,18 @@
   function createSession($creator, $name, $horizontal, $vertical, $theme) {
     $db = $GLOBALS['db'];
 
-    $sql = "INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`) VALUES ('$creator', '$name', $horizontal, $vertical, '$theme')";
-    $db->query($sql);
-    checkForDatabaseError();
-  }
-
-  /**
-   * Creates random terms for a session.
-   */
-  function createSessionTerms($session, $horizontal, $vertical, $category) {
-    $db = $GLOBALS['db'];
-
-    $sql = "SELECT `word` FROM `term` WHERE `category`='$category'";
+    // create an array of indexes
+    $sql = "SELECT id FROM `term` WHERE `category`='$theme'";
     $result = $db->query($sql);
     checkForDatabaseError();
-
-    $terms = array();
+    $indexes = array();
     while($row = $result->fetch_assoc()) {
-      array_push($terms, $row['word']);
+      array_push($indexes, $row['id']);
     }
-    shuffle($terms);
+    shuffle($indexes);
 
-    $numberOfCards = $horizontal * $vertical;
-
-    if(count($terms) < $numberOfCards) {
-      die('The selected theme has too few terms!');
-    }
-
-    $sessionTermsSql = "INSERT INTO `session-terms` (`session`, `x`, `y`, `term`) VALUES ";
-    for ($y = 0; $y < $vertical; $y++) {
-      for ($x = 0; $x < $horizontal; $x++) {
-        $term = $terms[$y * $horizontal + $x];
-        $sessionTermsSql .= "('$session', $x, $y, '$term')";
-        if(($x+1) * ($y+1) < ($horizontal*$vertical)-1) {
-          $sessionTermsSql .= ", ";
-        }
-      }
-    }
-
-    $db->query($sessionTermsSql);
+    $sql = "INSERT INTO `session` (`creator`, `name`, `horizontal`, `vertical`, `theme`, `terms`) VALUES ('$creator', '$name', $horizontal, $vertical, '$theme', '" . json_encode($indexes) . "')";
+    $db->query($sql);
     checkForDatabaseError();
   }
 
@@ -254,45 +249,52 @@
 
     switch ($horizontal * $vertical) {
       case 9:
-        $teamA = 3;
-        $teamB = 3;
-        $neutral = 2;
+        $r = rand(3, 4);
+        $teamA = $r;
+        $teamB = 7 - $r;
+        $neutral = 1;
         $black = 1;
         break;
       case 12:
-        $teamA = 4;
-        $teamB = 4;
-        $neutral = 3;
+        $r = rand(4, 5);
+        $teamA = $r;
+        $teamB = 9 - $r;
+        $neutral = 2;
         $black = 1;
         break;
       case 16:
-        $teamA = 5;
-        $teamB = 5;
-        $neutral = 5;
+        $r = rand(5, 6);
+        $teamA = $r;
+        $teamB = 11 - $r;
+        $neutral = 4;
         $black = 1;
         break;
       case 20:
-        $teamA = 7;
-        $teamB = 7;
-        $neutral = 5;
+        $r = rand(6, 7);
+        $teamA = $r;
+        $teamB = 13 - $r;
+        $neutral = 6;
         $black = 1;
         break;
       case 25:
-        $teamA = 8;
-        $teamB = 8;
-        $neutral = 8;
+        $r = rand(8, 9);
+        $teamA = $r;
+        $teamB = 17 - $r;
+        $neutral = 7;
         $black = 1;
         break;
       case 30:
-        $teamA = 10;
-        $teamB = 10;
-        $neutral = 8;
+        $r = rand(9, 10);
+        $teamA = $r;
+        $teamB = 19 - $r;
+        $neutral = 9;
         $black = 2;
         break;
       case 36:
-        $teamA = 11;
-        $teamB = 11;
-        $neutral = 11;
+        $r = rand(11, 12);
+        $teamA = $r;
+        $teamB = 23 - $r;
+        $neutral = 10;
         $black = 3;
         break;
     }
@@ -305,12 +307,11 @@
       array_push($colors, $teamBColor);
     }
     for ($i = 0; $i < $neutral; $i++) {
-      array_push($colors, '#ddd');
+      array_push($colors, '#ffcc06');
     }
     for ($i = 0; $i < $black; $i++) {
-      array_push($colors, '#222');
+      array_push($colors, '#222222');
     }
-
     shuffle($colors);
 
     $sessionColorsSql = "INSERT INTO `session-colors` (`session`, `x`, `y`, `color`) VALUES ";
@@ -469,17 +470,45 @@
   function getSessionTerms($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `x`, `y`, `term` FROM `session-terms` WHERE `session` = '$session'";
+    $sql = "SELECT `horizontal`, `vertical`, `terms` FROM `session` WHERE `name`='$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+    while($row = $result->fetch_assoc()) {
+      $horizontal = $row['horizontal'];
+      $vertical = $row['vertical'];
+      $termIndexes = json_decode($row['terms']);
+    }
+
+    $colors = getSessionColors($session);
+    $cardAmount = $horizontal * $vertical;
+    
+    $sql = "SELECT `id`, `word` FROM `term` WHERE `id` IN (";
+    for ($i=0; $i<$cardAmount; $i++) {
+      $sql .= $termIndexes[$i];
+      if($i<$cardAmount-1) {
+        $sql .= ',';
+      }
+    }
+    $sql .= ')';
     $result = $db->query($sql);
     checkForDatabaseError();
 
-    $cards = array();
+    $terms = array();
     while($row = $result->fetch_assoc()) {
+      $terms[$row['id']] = $row['word'];
+    }
+
+    // now sort the terms
+    $cards = array();
+    $rowIndex = 0;
+    for($j=0; $j<$cardAmount; $j++) {
       array_push($cards, array(
-        'x' => $row['x'],
-        'y' => $row['y'],
-        'word' => $row['term']
+        'x' => $rowIndex % $horizontal,
+        'y' => intdiv($rowIndex, $horizontal),
+        'word' => $terms[$termIndexes[$j]],
+        'color' => $colors[$rowIndex]['color']
       ));
+      $rowIndex++;
     }
 
     return $cards;
@@ -488,8 +517,15 @@
   function selectCard($session, $x, $y) {
     $db = $GLOBALS['db'];
 
-    $sql = "INSERT INTO `card` (`session`, `x`, `y`) VALUES ('$session', $x, $y)";
-    $db->query($sql);
+    $sql = "SELECT `color` FROM `session-colors` WHERE `session`='$session' AND `x`='$x' AND `y`='$y'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+    while($row = $result->fetch_assoc()) {
+      $color = $row['color'];
+    }
+
+    $updateColorSql = "UPDATE `session-terms` SET `color`='$color' WHERE `session`='$session' AND `x`='$x' AND `y`='$y'";
+    $db->query($updateColorSql);
     checkForDatabaseError();
   }
 
@@ -518,5 +554,29 @@
     }
 
     return $terms;
+  }
+
+  function exchangeTerm($session, $x, $y) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `horizontal`, `vertical`, `terms` FROM `session` WHERE `name` = '$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    while($row = $result->fetch_assoc()) {
+      $horizontal = $row['horizontal'];
+      $vertical = $row['vertical'];
+      $terms = json_decode($row['terms']);
+    }
+
+    $exchangeIndex = $y * $horizontal + $x;
+    $exchangeTerm = $terms[$exchangeIndex];
+    unset($terms[$exchangeIndex]);
+    array_push($terms, $exchangeTerm);
+    $terms = array_values($terms);
+
+    $sql = "UPDATE `session` SET `terms`='".json_encode($terms)."' WHERE `name`='$session'";
+    $db->query($sql);
+    checkForDatabaseError();
   }
 ?>

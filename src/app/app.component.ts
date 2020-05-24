@@ -58,15 +58,15 @@ export class AppComponent implements OnInit {
       {
         name: 'Ü 18',
         file: 'over-18'
-      },
+      }
       // {
       //   name: 'Party',
       //   file: 'party'
       // },
-      {
-        name: 'Jazzchor',
-        file: 'jazzchor'
-      }
+      // {
+      //   name: 'Jazzchor',
+      //   file: 'jazzchor'
+      // }
       // {
       //   name: 'Corona',
       //   file: 'corona'

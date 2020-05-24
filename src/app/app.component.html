@@ -100,8 +100,8 @@
 </div>
 
 <div class="game" *ngIf="page === 'play'">
-  <app-players [activeSession]="activeSession" (activePlayer)="iAmActivePlayer = $event"></app-players>
-  <app-board [activeSession]="activeSession" [participant]="participant"></app-board>
+  <app-players [activeSession]="activeSession" (activePlayer)="iAmActivePlayer = $event" (leave)="page = 'welcome'"></app-players>
+  <app-board [activeSession]="activeSession" [participant]="participant" [iAmActivePlayer]="iAmActivePlayer"></app-board>
   <div class="ui-right">
     <app-code-sheet [activeSession]="activeSession" *ngIf="iAmActivePlayer"></app-code-sheet>
     <app-history [activeSession]="activeSession"></app-history>

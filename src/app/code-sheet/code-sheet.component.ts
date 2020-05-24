@@ -28,7 +28,6 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
     this.amount = 2;
     this.termDenied = false;
 
-    // TODO: activate when implementation is ready
     // setInterval(() => {
     //   this.http
     //     .get(`${environment.server}/fetch-terms`, { params: { session: this.activeSession.name } })

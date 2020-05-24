@@ -14,10 +14,10 @@
       <td>
         <div *ngIf="event.hits.teamA > 0" class="color" [ngStyle]="{ background: 'red' }">{{ event.hits.teamA }}</div>
         <div *ngIf="event.hits.teamB > 0" class="color" [ngStyle]="{ background: 'blue' }">{{ event.hits.teamB }}</div>
-        <div *ngIf="event.hits.neutral > 0" class="color" [ngStyle]="{ background: '#ddd' }">
+        <div *ngIf="event.hits.neutral > 0" class="color" [ngStyle]="{ background: '#dddddd' }">
           {{ event.hits.neutral }}
         </div>
-        <div *ngIf="event.hits.black > 0" class="color" [ngStyle]="{ background: '#222' }">{{ event.hits.black }}</div>
+        <div *ngIf="event.hits.black > 0" class="color" [ngStyle]="{ background: '#222222' }">{{ event.hits.black }}</div>
       </td>
     </tr>
   </tbody>

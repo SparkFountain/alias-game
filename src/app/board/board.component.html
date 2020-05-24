@@ -1,10 +1,12 @@
 <div class="row" *ngFor="let cardRow of cards; let y = index">
   <app-card
     (click)="selectCard(x, y)"
-    *ngFor="let word of cardRow; let x = index"
-    [word]="word"
+    *ngFor="let card of cardRow; let x = index"
+    [word]="card.word"
+    [color]="card.color"
     [width]="cardSize.width"
     [height]="cardSize.height"
     [flipCard]="false"
+    [iAmActivePlayer]="_iAmActivePlayer"
   ></app-card>
 </div>
