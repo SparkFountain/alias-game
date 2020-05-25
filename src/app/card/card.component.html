@@ -4,7 +4,12 @@
 <div
   class="card animated infinite"
   [ngClass]="{ flipOutY: flipCard }"
-  [ngStyle]="{ width: width + 'px', height: height + 'px', background: getBackground(), cursor: _iAmActivePlayer ? 'pointer' : 'default' }"
+  [ngStyle]="{
+    width: width + 'px',
+    height: height + 'px',
+    background: getBackground(),
+    cursor: _iAmActivePlayer ? 'pointer' : 'default'
+  }"
 >
   <p class="word" [ngStyle]="{ 'font-size': width / 9 + 'px' }">{{ word }}</p>
 </div>

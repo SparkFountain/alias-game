@@ -4,6 +4,7 @@
     *ngFor="let card of cardRow; let x = index"
     [word]="card.word"
     [color]="card.color"
+    [uncovered]="card.uncovered"
     [width]="cardSize.width"
     [height]="cardSize.height"
     [flipCard]="false"

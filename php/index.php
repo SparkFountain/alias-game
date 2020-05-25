@@ -47,14 +47,15 @@
     case '/create-session':
       createSession($_POST['creator'], $_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['theme']);
 
-      createTeam($_POST['name'], $_POST['teamOneName'], $_POST['teamOneColor']);
-      createTeam($_POST['name'], $_POST['teamTwoName'], $_POST['teamTwoColor']);
+      $activeTeam = rand(0, 1) == 1;
+      createTeam($_POST['name'], $_POST['teamOneName'], $_POST['teamOneColor'], $activeTeam ? true : false);
+      createTeam($_POST['name'], $_POST['teamTwoName'], $_POST['teamTwoColor'], $activeTeam ? false : true);
 
       if(!playerInTeam($_POST['name'], $_POST['teamOneName'], $_POST['creator'])) {
         createPlayer($_POST['creator'], $_POST['name'], $_POST['teamOneName']);
       }
 
-      createSessionColors($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['teamOneColor'], $_POST['teamTwoColor']);
+      createSessionColors($_POST['name'], $_POST['horizontal'], $_POST['vertical'], $_POST['teamOneColor'], $_POST['teamTwoColor'], $activeTeam);
 
       $session = getSession($_POST['name']);
       $teams = getSessionTeams($_POST['name']);
@@ -244,56 +245,49 @@
   /**
    * Creates random colors for a session.
    */
-  function createSessionColors($session, $horizontal, $vertical, $teamAColor, $teamBColor) {
+  function createSessionColors($session, $horizontal, $vertical, $teamAColor, $teamBColor, $activeTeam) {
     $db = $GLOBALS['db'];
 
     switch ($horizontal * $vertical) {
       case 9:
-        $r = rand(3, 4);
-        $teamA = $r;
-        $teamB = 7 - $r;
+        $teamA = $activeTeam ? 4 : 3;
+        $teamB = 7 - $teamA;
         $neutral = 1;
         $black = 1;
         break;
       case 12:
-        $r = rand(4, 5);
-        $teamA = $r;
-        $teamB = 9 - $r;
+        $teamA = $activeTeam ? 5 : 4;
+        $teamB = 9 - $teamA;
         $neutral = 2;
         $black = 1;
         break;
       case 16:
-        $r = rand(5, 6);
-        $teamA = $r;
-        $teamB = 11 - $r;
+        $teamA = $activeTeam ? 6 : 5;
+        $teamB = 11 - $teamA;
         $neutral = 4;
         $black = 1;
         break;
       case 20:
-        $r = rand(6, 7);
-        $teamA = $r;
-        $teamB = 13 - $r;
+        $teamA = $activeTeam ? 7 : 6;
+        $teamB = 13 - $teamA;
         $neutral = 6;
         $black = 1;
         break;
       case 25:
-        $r = rand(8, 9);
-        $teamA = $r;
-        $teamB = 17 - $r;
+        $teamA = $activeTeam ? 9 : 8;
+        $teamB = 17 -  $teamA;
         $neutral = 7;
         $black = 1;
         break;
       case 30:
-        $r = rand(9, 10);
-        $teamA = $r;
-        $teamB = 19 - $r;
+        $teamA = $activeTeam ? 10 : 9;
+        $teamB = 19 - $teamA;
         $neutral = 9;
         $black = 2;
         break;
       case 36:
-        $r = rand(11, 12);
-        $teamA = $r;
-        $teamB = 23 - $r;
+        $teamA = $activeTeam ? 12 : 11;
+        $teamB = 23 - $teamA;
         $neutral = 10;
         $black = 3;
         break;
@@ -332,10 +326,10 @@
   /**
    * Creates a new team in the database.
    */
-  function createTeam($session, $name, $color) {
+  function createTeam($session, $name, $color, $active) {
     $db = $GLOBALS['db'];
 
-    $sql = "INSERT INTO `team` (`session`, `name`, `color`) VALUES ('$session', '$name', '$color')";
+    $sql = "INSERT INTO `team` (`session`, `name`, `color`, `active`) VALUES ('$session', '$name', '$color', '$active')";
     $db->query($sql);
     checkForDatabaseError();
   }
@@ -448,7 +442,7 @@
   function getSessionColors($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `x`, `y`, `color` FROM `session-colors` WHERE `session` = '$session'";
+    $sql = "SELECT `x`, `y`, `color`, `uncovered` FROM `session-colors` WHERE `session` = '$session'";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -457,7 +451,8 @@
       array_push($colors, array(
         'x' => $row['x'],
         'y' => $row['y'],
-        'color' => $row['color']
+        'color' => $row['color'],
+        'uncovered' => $row['uncovered']
       ));
     }
 
@@ -506,7 +501,8 @@
         'x' => $rowIndex % $horizontal,
         'y' => intdiv($rowIndex, $horizontal),
         'word' => $terms[$termIndexes[$j]],
-        'color' => $colors[$rowIndex]['color']
+        'color' => $colors[$rowIndex]['color'],
+        'uncovered' => $colors[$rowIndex]['uncovered'] ? true : false
       ));
       $rowIndex++;
     }
@@ -517,15 +513,8 @@
   function selectCard($session, $x, $y) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `color` FROM `session-colors` WHERE `session`='$session' AND `x`='$x' AND `y`='$y'";
-    $result = $db->query($sql);
-    checkForDatabaseError();
-    while($row = $result->fetch_assoc()) {
-      $color = $row['color'];
-    }
-
-    $updateColorSql = "UPDATE `session-terms` SET `color`='$color' WHERE `session`='$session' AND `x`='$x' AND `y`='$y'";
-    $db->query($updateColorSql);
+    $sql = "UPDATE `session-colors` SET `uncovered`=1 WHERE `session`='$session' AND `x`='$x' AND `y`='$y'";
+    $db->query($sql);
     checkForDatabaseError();
   }
 

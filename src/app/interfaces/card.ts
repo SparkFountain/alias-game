@@ -3,4 +3,5 @@ export interface Card {
   y: number;
   word: string;
   color: string;
+  uncovered: boolean;
 }
