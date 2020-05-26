@@ -3,8 +3,8 @@ import { ActiveSession } from '../interfaces/active-session';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Response } from '../interfaces/response';
-import { Term } from '../interfaces/term';
 import { Color } from '../interfaces/color';
+import { Team } from '../interfaces/team';
 
 @Component({
   selector: 'app-code-sheet',
@@ -63,14 +63,15 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
     }, 10);
   }
 
-  requestTerm(): void {
+  requestDescription(): void {
     const body = new URLSearchParams();
     body.set('session', this.activeSession.name);
+    body.set('team', this.activeSession.teams.find((team: Team) => team.active).name);
     body.set('word', this.term);
     body.set('amount', this.amount.toString());
 
     this.http
-      .post(`${environment.server}/request-term`, body.toString(), environment.formHeader)
+      .post(`${environment.server}/request-description`, body.toString(), environment.formHeader)
       .toPromise()
       .then((response: Response<boolean>) => {
         if (response.data === true) {
@@ -82,5 +83,9 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
           this.termDenied = true;
         }
       });
+  }
+
+  fetchCurrentDescription() {
+
   }
 }

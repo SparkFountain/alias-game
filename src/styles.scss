@@ -68,3 +68,23 @@ button {
 .active {
   color: $active;
 }
+
+.positive {
+  background: $sea;
+  color: $white;
+
+  &:hover {
+    background: darken($sea, 10%);
+    color: $white;
+  }
+}
+
+.negative {
+  background: $active;
+  color: $white;
+
+  &:hover {
+    background: darken($active, 10%);
+    color: $white;
+  }
+}

@@ -1,6 +1,7 @@
 <table *ngIf="activeSession">
   <thead>
     <tr>
+      <td>Team</td>
       <td>Begriff</td>
       <td>Treffer</td>
     </tr>
@@ -8,16 +9,18 @@
   <tbody>
     <tr *ngFor="let event of historyEvents">
       <td>
-        <div class="color" [ngStyle]="{ background: event.teamColor }"></div>
-        {{ event.term }}
+        {{ event.team }}
       </td>
       <td>
-        <div *ngIf="event.hits.teamA > 0" class="color" [ngStyle]="{ background: 'red' }">{{ event.hits.teamA }}</div>
-        <div *ngIf="event.hits.teamB > 0" class="color" [ngStyle]="{ background: 'blue' }">{{ event.hits.teamB }}</div>
-        <div *ngIf="event.hits.neutral > 0" class="color" [ngStyle]="{ background: '#dddddd' }">
-          {{ event.hits.neutral }}
+        {{ event.description }} {{ event.amount }}
+      </td>
+      <td>
+        <div *ngIf="event.teamA > 0" class="color" [ngStyle]="{ background: 'red' }">{{ event.teamA }}</div>
+        <div *ngIf="event.teamB > 0" class="color" [ngStyle]="{ background: 'blue' }">{{ event.teamB }}</div>
+        <div *ngIf="event.neutral > 0" class="color" [ngStyle]="{ background: '#dddddd' }">
+          {{ event.neutral }}
         </div>
-        <div *ngIf="event.hits.black > 0" class="color" [ngStyle]="{ background: '#222222' }">{{ event.hits.black }}</div>
+        <div *ngIf="event.black > 0" class="color" [ngStyle]="{ background: '#222222' }">{{ event.black }}</div>
       </td>
     </tr>
   </tbody>

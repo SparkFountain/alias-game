@@ -1,6 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { ActiveSession } from '../interfaces/active-session';
 import { HistoryEvent } from '../interfaces/history-event';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+
+import { Response } from '../interfaces/response';
 
 @Component({
   selector: 'app-history',
@@ -12,30 +16,24 @@ export class HistoryComponent implements OnInit {
 
   public historyEvents: HistoryEvent[];
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.historyEvents = [
-      {
-        term: 'Urlaub 4',
-        teamColor: '#ff0000',
-        hits: {
-          teamA: 2,
-          teamB: 0,
-          neutral: 1,
-          black: 0
-        }
-      },
-      {
-        term: 'Winter 2',
-        teamColor: '#0000ff',
-        hits: {
-          teamA: 0,
-          teamB: 2,
-          neutral: 0,
-          black: 0
-        }
-      }
-    ];
+    this.historyEvents = [];
+
+    setInterval(() => {
+      this.http
+        .get(`${environment.server}/fetch-history`, { params: { session: this.activeSession.name } })
+        .toPromise()
+        .then((response: Response<HistoryEvent[]>) => {
+          this.historyEvents = [];
+
+          // console.info('History Events:', response.data);
+
+          response.data.forEach((event: HistoryEvent) => {
+            this.historyEvents.push(event);
+          });
+        });
+    }, 1000);
   }
 }

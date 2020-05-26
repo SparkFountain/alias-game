@@ -7,16 +7,19 @@
 </div>
 
 <div class="form-group">
-  <label><b>Dein Begriff:</b></label>
+  <label *ngIf="false"><b>Dein Begriff:</b></label>
+  <label *ngIf="true"><b>xyz schreibt:</b></label>
 </div>
 <div class="form-group">
-  <input [(ngModel)]="term" maxlength="32" />
-  <input type="number" [(ngModel)]="amount" min="0" max="8" />
+  <input [(ngModel)]="term" maxlength="32" [disabled]="true" />
+  <input type="number" [(ngModel)]="amount" min="0" max="8" [disabled]="true" />
 </div>
 <div class="form-group active" *ngIf="termDenied">
   Dein Begriff wurde nicht akzeptiert.
 </div>
 <div class="form-group">
-  <button (click)="requestTerm()">Anfragen</button>
+  <button *ngIf="false" (click)="requestDescription()">Anfragen</button>
+  <button class="positive" *ngIf="true" (click)="requestDescription()">Okay</button>
+  <button class="negative" *ngIf="true" (click)="requestDescription()">Nein</button>
 </div>
 <br />

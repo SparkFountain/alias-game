@@ -169,9 +169,13 @@
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $finalTeams));
       break;
-    case '/request-term':
-      requestTerm($_POST['session'], $_POST['word'], $_POST['amount']);
+    case '/request-description':
+      requestDescription($_POST['session'], $_POST['team'], $_POST['word'], $_POST['amount']);
       echo json_encode(array('status' => STATUS_SUCCESS));
+      break;
+    case '/fetch-current-description':
+      $currentDescription = fetchCurrentDescription($_GET['session'], $_GET['team']);
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $currentDescription));
       break;
     case '/fetch-terms':
       $terms = fetchTerms($_GET['session']);
@@ -182,7 +186,14 @@
       break;
     case '/exchange-term':
       exchangeTerm($_POST['session'], $_POST['x'], $_POST['y']);
-
+    case '/add-history-event':
+      addHistoryEvent($_POST['session'], $_POST['team'], $_POST['description'], $_POST['amount'], $_POST['teamA'], $_POST['teamB'], $_POST['neutral'], $_POST['black']);
+      echo json_encode(array('status' => STATUS_SUCCESS));
+      break;
+    case '/fetch-history':
+      $history = fetchHistory($_GET['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $history));
+      break;
   }
   // END OF ROUTING
 
@@ -518,12 +529,27 @@
     checkForDatabaseError();
   }
 
-  function requestTerm($session, $word, $amount) {
+  function requestDescription($session, $team, $word, $amount) {
     $db = $GLOBALS['db'];
 
-    $sql = "INSERT INTO `term` (`session`, `word`, `amount`, `accepted`) VALUES ('$session', '$word', $amount, false)";
+    $sql = "INSERT INTO `description` (`session`, `team`, `word`, `amount`, `accepted`) VALUES ('$session', '$team', '$word', $amount, -1)";
     $db->query($sql);
     checkForDatabaseError();
+  }
+
+  function fetchCurrentDescription($session, $team) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `word`, `amount` FROM `description` WHERE `session`='$session' AND `team`='$team' AND `accepted`=-1 ORDER BY `id` DESC LIMIT 1";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    while($row = $result->fetch_assoc()) {
+      return array(
+        'word' => $row['word'],
+        'amount' => $row['amount']
+      );
+    }
   }
 
   function fetchTerms($session) {
@@ -565,6 +591,37 @@
     $terms = array_values($terms);
 
     $sql = "UPDATE `session` SET `terms`='".json_encode($terms)."' WHERE `name`='$session'";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  function fetchHistory($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "SELECT `team`, `description`, `amount`, `teamA`, `teamB`, `neutral`, `black` FROM `history` WHERE `session` = '$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+
+    $history = array();
+    while($row = $result->fetch_assoc()) {
+      array_push($history, array(
+        'team' => $row['team'],
+        'description' => $row['description'],
+        'amount' => $row['amount'],
+        'teamA' => $row['teamA'],
+        'teamB' => $row['teamB'],
+        'neutral' => $row['neutral'],
+        'black' => $row['black']
+      ));
+    }
+
+    return $history;
+  }
+
+  function addHistoryEvent($session, $team, $description, $amount, $teamA, $teamB, $neutral, $black) {
+    $db = $GLOBALS['db'];
+
+    $sql = "INSERT INTO `history` (`session`, `team`, `description`, `amount`, `teamA`, `teamB`, `neutral`, `black`) VALUES ('$session', '$team', '$description', $amount, $teamA, $teamB, $neutral, $black)";
     $db->query($sql);
     checkForDatabaseError();
   }
