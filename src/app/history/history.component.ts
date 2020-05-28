@@ -12,7 +12,11 @@ import { Response } from '../interfaces/response';
   styleUrls: ['./history.component.scss']
 })
 export class HistoryComponent implements OnInit {
-  @Input() activeSession: ActiveSession;
+  _activeSession: ActiveSession;
+  @Input('activeSession')
+  set activeSession(session: ActiveSession) {
+    this._activeSession = session;
+  }
 
   public historyEvents: HistoryEvent[];
 
@@ -23,12 +27,10 @@ export class HistoryComponent implements OnInit {
 
     setInterval(() => {
       this.http
-        .get(`${environment.server}/fetch-history`, { params: { session: this.activeSession.name } })
+        .get(`${environment.server}/fetch-history`, { params: { session: this._activeSession.name } })
         .toPromise()
         .then((response: Response<HistoryEvent[]>) => {
           this.historyEvents = [];
-
-          // console.info('History Events:', response.data);
 
           response.data.forEach((event: HistoryEvent) => {
             this.historyEvents.push(event);

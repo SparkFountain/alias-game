@@ -11,7 +11,12 @@ import { Response } from '../interfaces/response';
   styleUrls: ['./board.component.scss']
 })
 export class BoardComponent implements OnInit, AfterViewInit {
-  @Input() activeSession: ActiveSession;
+  _activeSession: ActiveSession;
+  @Input('activeSession')
+  set activeSession(session: ActiveSession) {
+    this._activeSession = session;
+    this.prepareCards();
+  }
   @Input() participant: string;
   _iAmActivePlayer: boolean;
   @Input('iAmActivePlayer')
@@ -31,31 +36,22 @@ export class BoardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {}
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.cards = [];
-      this.activeSession.cards.forEach((card: Card) => {
-        if (!this.cards[card.y]) {
-          this.cards.push([]);
-        }
-        this.cards[card.y][card.x] = card;
-      });
+    setTimeout(() => this.prepareCards(), 10);
+  }
 
-      this.cardSize = {
-        width: (window.innerWidth * 0.6) / this.activeSession.horizontal - 10,
-        height: (window.innerHeight - 300) / this.activeSession.vertical
-      };
-    }, 10);
+  prepareCards(): void {
+    this.cards = [];
+    this._activeSession.cards.forEach((card: Card) => {
+      if (!this.cards[card.y]) {
+        this.cards.push([]);
+      }
+      this.cards[card.y][card.x] = card;
+    });
 
-    setInterval(() => {
-      this.http
-        .get(`${environment.server}/fetch-cards`, { params: { session: this.activeSession.name } })
-        .toPromise()
-        .then((response: Response<Card[]>) => {
-          response.data.forEach((card: Card) => {
-            this.cards[card.y][card.x] = card;
-          });
-        });
-    }, 1000);
+    this.cardSize = {
+      width: (window.innerWidth * 0.6) / this._activeSession.horizontal - 10,
+      height: (window.innerHeight - 300) / this._activeSession.vertical
+    };
   }
 
   selectCard(x: number, y: number): void {
@@ -63,10 +59,10 @@ export class BoardComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    // TODO: later check if participant is in active team
+    // TODO: check if participant is in active team
 
     const body = new URLSearchParams();
-    body.set('session', this.activeSession.name);
+    body.set('session', this._activeSession.name);
     body.set('x', x.toString());
     body.set('y', y.toString());
 

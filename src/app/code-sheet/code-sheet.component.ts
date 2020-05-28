@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { Response } from '../interfaces/response';
 import { Color } from '../interfaces/color';
 import { Team } from '../interfaces/team';
+import { Card } from '../interfaces/card';
 
 @Component({
   selector: 'app-code-sheet',
@@ -12,7 +13,11 @@ import { Team } from '../interfaces/team';
   styleUrls: ['./code-sheet.component.scss']
 })
 export class CodeSheetComponent implements OnInit, AfterViewInit {
-  @Input() activeSession: ActiveSession;
+  _activeSession: ActiveSession;
+  @Input('activeSession')
+  set activeSession(session: ActiveSession) {
+    this._activeSession = session;
+  }
 
   public colors: Array<string[]>;
   public colorSize: number;
@@ -27,37 +32,22 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
     this.term = '';
     this.amount = 2;
     this.termDenied = false;
-
-    // setInterval(() => {
-    //   this.http
-    //     .get(`${environment.server}/fetch-terms`, { params: { session: this.activeSession.name } })
-    //     .toPromise()
-    //     .then((response: Response<Term>) => {
-    //       console.info('Received Terms:', response);
-    //     });
-    // }, 3000);
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.colors = [];
-      for (let y = 0; y < this.activeSession.vertical; y++) {
+      for (let y = 0; y < this._activeSession.vertical; y++) {
         this.colors.push([]);
 
-        for (let x = 0; x < this.activeSession.horizontal; x++) {
+        for (let x = 0; x < this._activeSession.horizontal; x++) {
           this.colors[y].push('');
         }
       }
 
-      this.http
-        .get(`${environment.server}/get-session-colors`, { params: { session: this.activeSession.name } })
-        .toPromise()
-        .then((response: Response<Color[]>) => {
-          response.data.forEach((color: Color) => {
-            this.colors[color.y][color.x] = color.color;
-          });
-          console.info('');
-        });
+      this._activeSession.cards.forEach((card: Card) => {
+        this.colors[card.y][card.x] = card.color;
+      });
 
       this.colorSize = (window.innerWidth * 0.15) / 5;
     }, 10);
@@ -65,8 +55,8 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
 
   requestDescription(): void {
     const body = new URLSearchParams();
-    body.set('session', this.activeSession.name);
-    body.set('team', this.activeSession.teams.find((team: Team) => team.active).name);
+    body.set('session', this._activeSession.name);
+    body.set('team', this._activeSession.teams.find((team: Team) => team.active).name);
     body.set('word', this.term);
     body.set('amount', this.amount.toString());
 
@@ -85,7 +75,5 @@ export class CodeSheetComponent implements OnInit, AfterViewInit {
       });
   }
 
-  fetchCurrentDescription() {
-
-  }
+  fetchCurrentDescription() {}
 }

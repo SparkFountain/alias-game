@@ -70,7 +70,7 @@
         ));
       }
 
-      $cards = getSessionTerms($_POST['name']);
+      $cards = getSessionCards($_POST['name']);
 
       $sessionData = array(
         'name' => $_POST['name'],
@@ -109,40 +109,16 @@
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $finalSessions));
       break;
-    case '/get-session-colors':
-      $sessionColors = getSessionColors($_GET['session']);
-      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionColors));
-      break;
     case '/join-session':
       if(!playerInTeam($_POST['session'], $_POST['team'], $_POST['participant'])) {
         createPlayer($_POST['participant'], $_POST['session'], $_POST['team']);
       }
 
-      $session = getSession($_POST['session']);
-      $teams = getSessionTeams($_POST['session']);
-      $finalTeams = array();
-      foreach($teams as $team) {
-        $players = getTeamPlayers($session['name'], $team['name']);
-        array_push($finalTeams, array(
-          'name' => $team['name'],
-          'color' => $team['color'],
-          'active' => $team['active'],
-          'players' => $players
-        ));
-      }
-
-      $cards = getSessionTerms($_POST['session']);
-
-      $sessionData = array(
-        'name' => $_POST['session'],
-        'creator' => $session['creator'],
-        'horizontal' => $session['horizontal'],
-        'vertical' => $session['vertical'],
-        'theme' => $session['theme'],
-        'teams' => $finalTeams,
-        'cards' => $cards
-      );
-
+      $sessionData = fetchSession($_POST['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionData));
+      break;
+    case '/fetch-session':
+      $sessionData = fetchSession($_GET['session']);
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $sessionData));
       break;
     case '/select-card':
@@ -150,7 +126,7 @@
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
     case '/fetch-cards':
-      $cards = getSessionTerms($_GET['session']);
+      $cards = getSessionCards($_GET['session']);
 
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $cards));
       break;
@@ -193,6 +169,10 @@
     case '/fetch-history':
       $history = fetchHistory($_GET['session']);
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $history));
+      break;
+    case '/start-session':
+      startSession($_POST['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS));
       break;
   }
   // END OF ROUTING
@@ -408,7 +388,7 @@
   function getSession($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `name`, `creator`, `horizontal`, `vertical`, `theme` FROM `session` WHERE `name` = '$session'";
+    $sql = "SELECT `name`, `creator`, `horizontal`, `vertical`, `theme`, `started` FROM `session` WHERE `name` = '$session'";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -418,7 +398,8 @@
         'creator' => $row['creator'],
         'horizontal' => $row['horizontal'],
         'vertical' => $row['vertical'],
-        'theme' => $row['theme']
+        'theme' => $row['theme'],
+        'started' => $row['started']
       );
     }
 
@@ -448,7 +429,7 @@
   }
 
   /**
-   * Get all colors that belong to a certain session.
+   * Get all colors that belong to a session.
    */
   function getSessionColors($session) {
     $db = $GLOBALS['db'];
@@ -471,9 +452,9 @@
   }
 
   /**
-   * Get all terms of a certain session.
+   * Get all cards of a session.
    */
-  function getSessionTerms($session) {
+  function getSessionCards($session) {
     $db = $GLOBALS['db'];
 
     $sql = "SELECT `horizontal`, `vertical`, `terms` FROM `session` WHERE `name`='$session'";
@@ -622,6 +603,56 @@
     $db = $GLOBALS['db'];
 
     $sql = "INSERT INTO `history` (`session`, `team`, `description`, `amount`, `teamA`, `teamB`, `neutral`, `black`) VALUES ('$session', '$team', '$description', $amount, $teamA, $teamB, $neutral, $black)";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  function fetchSession($sessionName) {
+    $db = $GLOBALS['db'];
+
+    $session = getSession($sessionName);
+    $cards = getSessionCards($sessionName);
+    $remainingCards = array();
+    foreach($cards as $card) {
+      if(!array_key_exists($card['color'], $remainingCards)) {
+        $remainingCards[$card['color']] = 0;
+      }
+      if(!$card['uncovered']) {
+        $remainingCards[$card['color']]++;
+      }
+    }
+
+    $teams = getSessionTeams($sessionName);
+    $finalTeams = array();
+    foreach($teams as $team) {
+      $players = getTeamPlayers($session['name'], $team['name']);
+      array_push($finalTeams, array(
+        'name' => $team['name'],
+        'color' => $team['color'],
+        'active' => $team['active'],
+        'players' => $players,
+        'remainingCards' => $remainingCards[$team['color']]
+      ));
+    }
+
+    $sessionData = array(
+      'name' => $sessionName,
+      'creator' => $session['creator'],
+      'horizontal' => $session['horizontal'],
+      'vertical' => $session['vertical'],
+      'theme' => $session['theme'],
+      'teams' => $finalTeams,
+      'cards' => $cards,
+      'started' => $session['started'] ? true : false
+    );
+
+    return $sessionData;
+  }
+
+  function startSession($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "UPDATE `session` SET `started`=1 WHERE `name`='$session'";
     $db->query($sql);
     checkForDatabaseError();
   }

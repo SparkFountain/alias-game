@@ -5,4 +5,5 @@ export interface Team {
   active: boolean;
   color: string;
   players: Player[];
+  remainingCards: number;
 }

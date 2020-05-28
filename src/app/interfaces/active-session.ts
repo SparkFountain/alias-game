@@ -9,4 +9,5 @@ export interface ActiveSession {
   theme: string;
   teams: Team[];
   cards: Card[];
+  started: boolean;
 }

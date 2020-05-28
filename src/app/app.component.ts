@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Session } from './interfaces/session';
 import { Theme } from './interfaces/theme';
@@ -8,6 +8,7 @@ import { Response } from './interfaces/response';
 import { ActiveSession } from './interfaces/active-session';
 import { Player } from './interfaces/player';
 import { Team } from './interfaces/team';
+import { SessionService } from 'src/services/session.service';
 
 @Component({
   selector: 'app-root',
@@ -39,7 +40,7 @@ export class AppComponent implements OnInit {
 
   public gameOver: boolean;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private sessionService: SessionService) {}
 
   ngOnInit(): void {
     this.page = 'welcome';
@@ -95,6 +96,8 @@ export class AppComponent implements OnInit {
     this.iAmActivePlayer = false;
 
     this.gameOver = false;
+
+    setInterval(() => this.fetchActiveSession(), 1000);
   }
 
   createSession(): void {
@@ -195,6 +198,14 @@ export class AppComponent implements OnInit {
       .catch((error: any) => {
         console.error('Could not join session:', error);
       });
+  }
+
+  fetchActiveSession(): void {
+    if (this.page === 'play') {
+      this.sessionService.fetchActiveSession(this.activeSession.name).then((response: Response<ActiveSession>) => {
+        this.activeSession = response.data;
+      });
+    }
   }
 
   quitSession(): void {

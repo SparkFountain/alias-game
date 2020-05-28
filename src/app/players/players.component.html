@@ -10,7 +10,9 @@
       <div class="team-color" [ngStyle]="{ background: team.color }"></div>
       <div class="team-meta">
         <div class="team-meta-line"><b>Team {{ team.name }}</b></div>
-        <div class="team-meta-line">Noch {{ remainingCards[team.name] }} Karten übrig</div>
+        <div class="team-meta-line" *ngIf="remainingCards[team.name] > 1">Noch {{ remainingCards[team.name] }} Karten übrig</div>
+        <div class="team-meta-line" *ngIf="remainingCards[team.name] === 1">Noch eine Karte übrig</div>
+        <div class="team-meta-line" *ngIf="remainingCards[team.name] <= 0">Gewonnen!</div>
       </div>
     </div>
 
@@ -25,6 +27,8 @@
   </div>
 
   <button class="active-player-request" *ngIf="!iAmActivePlayer" (click)="requestActivePlayer()">Ich möchte Begriffe erklären.</button>
+
+  <button *ngIf="!_activeSession.started" (click)="startSession()">Spiel beginnen</button>
 
   <button *ngIf="!exchangeCards" (click)="exchangeCards = true">Begriffe tauschen...</button>
   <button *ngIf="exchangeCards" (click)="exchangeCards = false">Begriffe tauschen beenden</button>

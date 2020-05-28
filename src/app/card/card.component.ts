@@ -14,7 +14,11 @@ export interface RGB {
 export class CardComponent implements OnInit {
   @Input() word: string;
   @Input() color: string;
-  @Input() uncovered: boolean;
+  _uncovered: boolean;
+  @Input('uncovered')
+  set uncovered(value: boolean) {
+    this._uncovered = value;
+  }
   @Input() width: number;
   @Input() height: number;
   @Input() flipCard: boolean;
@@ -31,10 +35,10 @@ export class CardComponent implements OnInit {
 
   getBackground(): string {
     let background = 'url(/assets/card-background.jpg)';
-    if (this.color && this.uncovered) {
+    if (this.color && this._uncovered) {
       const rgb: RGB = this.hexToRgb(this.color);
       let opacity: number;
-      if(this.color === '#ffcc06') {
+      if (this.color === '#ffcc06') {
         opacity = 0.75;
       } else {
         opacity = 0.25;
