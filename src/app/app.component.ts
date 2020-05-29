@@ -247,6 +247,13 @@ export class AppComponent implements OnInit {
         .fetchActiveSession(this.activeSession.name)
         .then((response: Response<ActiveSession>) => {
           this.activeSession = response.data;
+          this.activeSession.teams.forEach((team: Team) => {
+            team.players.forEach((player: Player) => {
+              if (player.active && player.name === this.user.player) {
+                this.iAmActivePlayer = true;
+              }
+            });
+          });
         });
     }
   }
