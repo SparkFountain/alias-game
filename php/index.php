@@ -149,9 +149,13 @@
       requestDescription($_POST['session'], $_POST['team'], $_POST['word'], $_POST['amount']);
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
-    case '/fetch-current-description':
-      $currentDescription = fetchCurrentDescription($_GET['session'], $_GET['team']);
-      echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $currentDescription));
+    case '/accept-description':
+      acceptDescription($_POST['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS));
+      break;
+    case '/deny-description':
+      denyDescription($_POST['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS));
       break;
     case '/fetch-terms':
       $terms = fetchTerms($_GET['session']);
@@ -176,6 +180,10 @@
       break;
     case '/reset-session':
       resetSession($_POST['session']);
+      echo json_encode(array('status' => STATUS_SUCCESS));
+      break;
+    case '/next-round':
+      nextRound($_POST['session']);
       echo json_encode(array('status' => STATUS_SUCCESS));
       break;
   }
@@ -411,7 +419,7 @@
   }
 
   /**
-   * Get all teams (2) that belong to a certain session.
+   * Get all teams (2) that belong to a session.
    */
   function getSessionTeams($session) {
     $db = $GLOBALS['db'];
@@ -522,19 +530,44 @@
     checkForDatabaseError();
   }
 
-  function fetchCurrentDescription($session, $team) {
+  function getDescription($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `word`, `amount` FROM `description` WHERE `session`='$session' AND `team`='$team' AND `accepted`=-1 ORDER BY `id` DESC LIMIT 1";
+    $sql = "SELECT `word`, `amount`, `accepted` FROM `description` WHERE `session`='$session' ORDER BY `id` DESC LIMIT 1";
     $result = $db->query($sql);
     checkForDatabaseError();
 
-    while($row = $result->fetch_assoc()) {
+    if($result->num_rows > 0) {
+      while($row = $result->fetch_assoc()) {
+        return array(
+          'word' => $row['word'],
+          'amount' => $row['amount'],
+          'accepted' => $row['accepted']
+        );
+      }
+    } else {
       return array(
-        'word' => $row['word'],
-        'amount' => $row['amount']
+        'word' => '',
+        'amount' => 0,
+        'accepted' => -1
       );
     }
+  }
+
+  function acceptDescription($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "UPDATE `description` SET `accepted`=1 WHERE `session`='$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  function denyDescription($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "UPDATE `description` SET `accepted`=0 WHERE `session`='$session'";
+    $result = $db->query($sql);
+    checkForDatabaseError();
   }
 
   function fetchTerms($session) {
@@ -639,6 +672,14 @@
       ));
     }
 
+    $description = getDescription($sessionName);
+    $finalDescription = array(
+      'term' => $description['word'],
+      'amount' => $description['amount'],
+      'accepted' => $description['accepted'] == 1 ? true : false,
+      'denied' => $description['accepted'] == 0 ? true : false
+    );
+
     $sessionData = array(
       'name' => $sessionName,
       'creator' => $session['creator'],
@@ -647,7 +688,8 @@
       'theme' => $session['theme'],
       'teams' => $finalTeams,
       'cards' => $cards,
-      'started' => $session['started'] ? true : false
+      'started' => $session['started'] ? true : false,
+      'description' => $finalDescription
     );
 
     return $sessionData;
@@ -723,6 +765,26 @@
 
     // unset active players
     $sql = "UPDATE `player` SET `active`=0 WHERE `session`='$session'";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  function nextRound($session) {
+    $db = $GLOBALS['db'];
+
+    $sql = "DELETE FROM `description` WHERE 1";
+    $db->query($sql);
+    checkForDatabaseError();
+
+    $sql = "UPDATE `team` SET `active`=-1 WHERE `active`='1' AND `session`='$session'";
+    $db->query($sql);
+    checkForDatabaseError();
+
+    $sql = "UPDATE `team` SET `active`=1 WHERE `active`=0 AND `session`='$session'";
+    $db->query($sql);
+    checkForDatabaseError();
+
+    $sql = "UPDATE `team` SET `active`=0 WHERE `active`=-1 AND `session`='$session'";
     $db->query($sql);
     checkForDatabaseError();
   }

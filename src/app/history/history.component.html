@@ -11,12 +11,10 @@
       <td>
         {{ event.team }}
       </td>
+      <td>{{ event.description }} {{ event.amount }}</td>
       <td>
-        {{ event.description }} {{ event.amount }}
-      </td>
-      <td>
-        <div *ngIf="event.teamA > 0" class="color" [ngStyle]="{ background: 'red' }">{{ event.teamA }}</div>
-        <div *ngIf="event.teamB > 0" class="color" [ngStyle]="{ background: 'blue' }">{{ event.teamB }}</div>
+        <div *ngIf="event.teamA > 0" class="color" [ngStyle]="{ background: '#c22b0c' }">{{ event.teamA }}</div>
+        <div *ngIf="event.teamB > 0" class="color" [ngStyle]="{ background: '#0b6bca' }">{{ event.teamB }}</div>
         <div *ngIf="event.neutral > 0" class="color" [ngStyle]="{ background: '#dddddd' }">
           {{ event.neutral }}
         </div>

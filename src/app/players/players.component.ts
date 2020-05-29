@@ -84,6 +84,12 @@ export class PlayersComponent {
     }
   }
 
+  nextRound(): void {
+    const body = new URLSearchParams();
+    body.set('session', this._activeSession.name);
+    this.http.post(`${environment.server}/next-round`, body.toString(), environment.formHeader).toPromise();
+  }
+
   leaveSession(): void {
     // const body = new URLSearchParams();
     // body.set("session", this._activeSession.name);

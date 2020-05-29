@@ -5,6 +5,10 @@
     Team {{ activeTeam }} ist dran.
   </div>
 
+  <div class="description" *ngIf="_activeSession.description.term !== '' && _activeSession.description.accepted">
+    <i>{{ _activeSession.description.term }} {{ _activeSession.description.amount }}</i>
+  </div>
+
   <div class="team" *ngFor="let team of _activeSession?.teams">
     <div class="team-info">
       <div class="team-color" [ngStyle]="{ background: team.color }"></div>
@@ -47,6 +51,9 @@
     (click)="startSession()"
   >
     Spiel beginnen
+  </button>
+  <button *ngIf="_activeSession && _activeSession.started && iAmActivePlayer" (click)="nextRound()">
+    Nächste Runde
   </button>
   <button class="negative leave-session" (click)="leaveSession()">
     Session verlassen

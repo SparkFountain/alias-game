@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { ActiveSession } from '../interfaces/active-session';
 import { environment } from 'src/environments/environment';
 import { Card } from '../interfaces/card';
+import { UserService } from 'src/services/user.service';
+import { User } from '../interfaces/user';
+import { Team } from '../interfaces/team';
 
 @Component({
   selector: 'app-board',
@@ -30,7 +33,24 @@ export class BoardComponent implements OnInit, AfterViewInit {
     height: number;
   };
 
-  constructor(private http: HttpClient) {}
+  public selectedCards: {
+    teamA: number;
+    teamB: number;
+    neutral: number;
+    black: number;
+  };
+
+  public user: User;
+
+  constructor(private http: HttpClient, private userService: UserService) {
+    this.user = this.userService.getUser();
+    this.selectedCards = {
+      teamA: 0,
+      teamB: 0,
+      neutral: 0,
+      black: 0
+    };
+  }
 
   ngOnInit(): void {}
 
@@ -54,11 +74,15 @@ export class BoardComponent implements OnInit, AfterViewInit {
   }
 
   selectCard(x: number, y: number): void {
-    if (!this._iAmActivePlayer || !this._activeSession.started) {
+    if (
+      !this._iAmActivePlayer ||
+      !this._activeSession.started ||
+      this.user.team === this._activeSession.teams.find((team: Team) => team.active).name
+    ) {
       return;
     }
 
-    const body = new URLSearchParams();
+    let body = new URLSearchParams();
     body.set('session', this._activeSession.name);
     body.set('x', x.toString());
     body.set('y', y.toString());
@@ -67,7 +91,74 @@ export class BoardComponent implements OnInit, AfterViewInit {
       .post(`${environment.server}/select-card`, body.toString(), environment.formHeader)
       .toPromise()
       .then(() => {
-        console.info(`Selected card at ${x},${y}`);
+        // detect color of selected card
+        const selectedCard: Card = this._activeSession.cards.find((card: Card) => card.x === x && card.y === y);
+        switch (selectedCard.color) {
+          case '#222222':
+            this.selectedCards.black++;
+            break;
+          case '#ffcc06':
+            this.selectedCards.neutral++;
+            break;
+          case '#c22b0c':
+            this.selectedCards.teamA++;
+            break;
+          case '#0b6bca':
+            this.selectedCards.teamB++;
+            break;
+        }
+
+        // let totalCards = 0;
+        // // tslint:disable-next-line: forin
+        // for (const key in this.selectedCards) {
+        //   totalCards += this.selectedCards[key];
+        // }
+
+        // if (
+        //   selectedCard.color !== this._activeSession.teams.find((team: Team) => team.active).color ||
+        //   totalCards === this._activeSession.description.amount
+        // ) {
+        //   body = new URLSearchParams();
+        //   body.set('session', this._activeSession.name);
+        //   body.set('team', this._activeSession.teams.find((team: Team) => team.active).name);
+        //   body.set('description', this._activeSession.description.term);
+        //   body.set('amount', this._activeSession.description.amount.toString());
+        //   body.set('teamA', this.selectedCards.teamA.toString());
+        //   body.set('teamB', this.selectedCards.teamB.toString());
+        //   body.set('neutral', this.selectedCards.neutral.toString());
+        //   body.set('black', this.selectedCards.black.toString());
+
+        //   this.http
+        //     .post(`${environment.server}/add-history-event`, body.toString(), environment.formHeader)
+        //     .toPromise()
+        //     .then(() => {
+        //       body = new URLSearchParams();
+        //       body.set('session', this._activeSession.name);
+
+        //       this.http.post(`${environment.server}/next-round`, body.toString(), environment.formHeader).toPromise();
+        //     });
+        // }
+      });
+  }
+
+  nextRound(): void {
+    const body = new URLSearchParams();
+    body.set('session', this._activeSession.name);
+    body.set('team', this._activeSession.teams.find((team: Team) => team.active).name);
+    body.set('description', this._activeSession.description.term);
+    body.set('amount', this._activeSession.description.amount.toString());
+    body.set('teamA', this.selectedCards.teamA.toString());
+    body.set('teamB', this.selectedCards.teamB.toString());
+    body.set('neutral', this.selectedCards.neutral.toString());
+    body.set('black', this.selectedCards.black.toString());
+
+    this.http
+      .post(`${environment.server}/add-history-event`, body.toString(), environment.formHeader)
+      .toPromise()
+      .then(() => {
+        const body = new URLSearchParams();
+        body.set('session', this._activeSession.name);
+        this.http.post(`${environment.server}/next-round`, body.toString(), environment.formHeader).toPromise();
       });
   }
 

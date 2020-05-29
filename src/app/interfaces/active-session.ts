@@ -10,4 +10,10 @@ export interface ActiveSession {
   teams: Team[];
   cards: Card[];
   started: boolean;
+  description: {
+    term: string;
+    amount: number;
+    accepted: boolean;
+    denied: boolean;
+  };
 }
