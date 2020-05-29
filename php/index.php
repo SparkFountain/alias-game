@@ -425,7 +425,7 @@
       array_push($teams, array(
         'name' => $row['name'],
         'color' => $row['color'],
-        'active' => $row['active'] ? 'true' : 'false'
+        'active' => $row['active'] ? true : false
       ));
     }
 
@@ -438,7 +438,7 @@
   function getSessionColors($session) {
     $db = $GLOBALS['db'];
 
-    $sql = "SELECT `x`, `y`, `color`, `uncovered` FROM `session-colors` WHERE `session` = '$session'";
+    $sql = "SELECT `x`, `y`, `color`, `uncovered` FROM `session-colors` WHERE `session` = '$session' ORDER BY y ASC, x ASC";
     $result = $db->query($sql);
     checkForDatabaseError();
 
@@ -692,7 +692,7 @@
     checkForDatabaseError();
 
     // delete old session colors
-    $sql = "DELETE FROM `session-color` WHERE `session`='$session'";
+    $sql = "DELETE FROM `session-colors` WHERE `session`='$session'";
     $db->query($sql);
     checkForDatabaseError();
 

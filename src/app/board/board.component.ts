@@ -1,25 +1,24 @@
-import { Component, OnInit, Input, AfterViewInit } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
-import { ActiveSession } from "../interfaces/active-session";
-import { environment } from "src/environments/environment";
-import { Card } from "../interfaces/card";
-import { Response } from "../interfaces/response";
+import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { ActiveSession } from '../interfaces/active-session';
+import { environment } from 'src/environments/environment';
+import { Card } from '../interfaces/card';
 
 @Component({
-  selector: "app-board",
-  templateUrl: "./board.component.html",
-  styleUrls: ["./board.component.scss"],
+  selector: 'app-board',
+  templateUrl: './board.component.html',
+  styleUrls: ['./board.component.scss']
 })
 export class BoardComponent implements OnInit, AfterViewInit {
   _activeSession: ActiveSession;
-  @Input("activeSession")
+  @Input('activeSession')
   set activeSession(session: ActiveSession) {
     this._activeSession = session;
     this.prepareCards();
   }
   @Input() participant: string;
   _iAmActivePlayer: boolean;
-  @Input("iAmActivePlayer")
+  @Input('iAmActivePlayer')
   set iAmActivePlayer(value: boolean) {
     this._iAmActivePlayer = value;
   }
@@ -50,28 +49,22 @@ export class BoardComponent implements OnInit, AfterViewInit {
 
     this.cardSize = {
       width: (window.innerWidth * 0.6) / this._activeSession.horizontal - 10,
-      height: (window.innerHeight - 300) / this._activeSession.vertical,
+      height: (window.innerHeight - 300) / this._activeSession.vertical
     };
   }
 
   selectCard(x: number, y: number): void {
-    if (!this._iAmActivePlayer) {
+    if (!this._iAmActivePlayer || !this._activeSession.started) {
       return;
     }
 
-    // TODO: check if participant is in active team
-
     const body = new URLSearchParams();
-    body.set("session", this._activeSession.name);
-    body.set("x", x.toString());
-    body.set("y", y.toString());
+    body.set('session', this._activeSession.name);
+    body.set('x', x.toString());
+    body.set('y', y.toString());
 
     this.http
-      .post(
-        `${environment.server}/select-card`,
-        body.toString(),
-        environment.formHeader
-      )
+      .post(`${environment.server}/select-card`, body.toString(), environment.formHeader)
       .toPromise()
       .then(() => {
         console.info(`Selected card at ${x},${y}`);
@@ -80,19 +73,13 @@ export class BoardComponent implements OnInit, AfterViewInit {
 
   exchangeTerm(word: string): void {
     // get term
-    const term = this._activeSession.cards.find(
-      (card: Card) => card.word === word
-    );
+    const term = this._activeSession.cards.find((card: Card) => card.word === word);
 
     const body = new URLSearchParams();
-    body.set("session", this._activeSession.name);
-    body.set("x", term.x.toString());
-    body.set("y", term.y.toString());
+    body.set('session', this._activeSession.name);
+    body.set('x', term.x.toString());
+    body.set('y', term.y.toString());
 
-    this.http.post(
-      `${environment.server}/exchange-term`,
-      body.toString(),
-      environment.formHeader
-    ).toPromise();
+    this.http.post(`${environment.server}/exchange-term`, body.toString(), environment.formHeader).toPromise();
   }
 }

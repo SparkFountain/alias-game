@@ -43,7 +43,7 @@
 
   <button
     class="positive"
-    *ngIf="!_activeSession.started && iAmActivePlayer"
+    *ngIf="_activeSession && !_activeSession.started && iAmActivePlayer"
     (click)="startSession()"
   >
     Spiel beginnen
