@@ -158,7 +158,7 @@
       echo json_encode(array('status' => STATUS_SUCCESS, 'data' => $terms));
       break;
     case '/request-active-player':
-      requestActivePlayer();
+      requestActivePlayer($_POST['session'], $_POST['team'], $_POST['player']);
       break;
     case '/exchange-term':
       exchangeTerm($_POST['session'], $_POST['x'], $_POST['y']);
@@ -653,6 +653,14 @@
     $db = $GLOBALS['db'];
 
     $sql = "UPDATE `session` SET `started`=1 WHERE `name`='$session'";
+    $db->query($sql);
+    checkForDatabaseError();
+  }
+
+  function requestActivePlayer($session, $team, $player) {
+    $db = $GLOBALS['db'];
+
+    $sql = "UPDATE `player` SET `active`=1 WHERE `session`='$session' AND `team`='$team' AND `name`='$player'";
     $db->query($sql);
     checkForDatabaseError();
   }

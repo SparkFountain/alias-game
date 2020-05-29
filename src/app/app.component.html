@@ -12,11 +12,21 @@
 
   <div class="form-group">
     <label>Wer bist du?</label>
-    <input [(ngModel)]="session.creator" type="text" maxlength="16" placeholder="Mr(s). Anonymous" />
+    <input
+      [(ngModel)]="session.creator"
+      type="text"
+      maxlength="16"
+      placeholder="Mr(s). Anonymous"
+    />
   </div>
   <div class="form-group">
     <label>Gib einen Session-Namen ein</label>
-    <input [(ngModel)]="session.name" type="text" maxlength="16" placeholder="Friday Fun" />
+    <input
+      [(ngModel)]="session.name"
+      type="text"
+      maxlength="16"
+      placeholder="Friday Fun"
+    />
   </div>
   <div class="form-group">
     <label>Größe des Spielfelds</label>
@@ -32,7 +42,12 @@
   </div>
   <div class="form-group">
     <label>Name des 1. Teams</label>
-    <input [(ngModel)]="session.teamOneName" type="text" maxlength="16" placeholder="A" />
+    <input
+      [(ngModel)]="session.teamOneName"
+      type="text"
+      maxlength="16"
+      placeholder="A"
+    />
   </div>
   <!-- <div class="form-group">
     <label>Farbe des 1. Teams</label>
@@ -40,7 +55,12 @@
   </div> -->
   <div class="form-group">
     <label>Name des 2. Teams</label>
-    <input [(ngModel)]="session.teamTwoName" type="text" maxlength="16" placeholder="B" />
+    <input
+      [(ngModel)]="session.teamTwoName"
+      type="text"
+      maxlength="16"
+      placeholder="B"
+    />
   </div>
   <br />
   <!-- <div class="form-group">
@@ -78,13 +98,20 @@
 
   <div class="form-group" *ngIf="selectedSession2Join">
     <label>Wer bist du?</label>
-    <input [(ngModel)]="participant" type="text" maxlength="16" placeholder="Mr(s). Anonymous" />
+    <input
+      [(ngModel)]="participant"
+      type="text"
+      maxlength="16"
+      placeholder="Mr(s). Anonymous"
+    />
   </div>
 
   <div class="form-group" *ngIf="selectedSession2Join">
     <label>In welches Team gehst du?</label>
     <select [(ngModel)]="selectedTeam2Join" (change)="updateTeamMembers()">
-      <option *ngFor="let team of selectedSession2Join.teams">{{ team.name }}</option>
+      <option *ngFor="let team of selectedSession2Join.teams">{{
+        team.name
+      }}</option>
     </select>
   </div>
   <br *ngIf="!selectedTeam2Join" />
@@ -94,18 +121,42 @@
   </div>
 
   <div class="form-group">
-    <button (click)="joinSession()" [disabled]="!selectedSession2Join || !selectedTeam2Join">Beitreten</button>
+    <button
+      (click)="joinSession()"
+      [disabled]="!selectedSession2Join || !selectedTeam2Join"
+    >
+      Beitreten
+    </button>
     <button (click)="page = 'welcome'">Abbrechen</button>
   </div>
 </div>
 
 <div class="game" *ngIf="page === 'play'">
-  <app-players [activeSession]="activeSession" (activePlayer)="iAmActivePlayer = $event" (leave)="page = 'welcome'"></app-players>
-  <app-board [activeSession]="activeSession" [participant]="participant" [iAmActivePlayer]="iAmActivePlayer"></app-board>
+  <app-players
+    [activeSession]="activeSession"
+    (activePlayer)="iAmActivePlayer = $event"
+    (leave)="page = 'welcome'"
+  ></app-players>
+  <app-board
+    [activeSession]="activeSession"
+    [participant]="participant"
+    [iAmActivePlayer]="iAmActivePlayer"
+  ></app-board>
   <div class="ui-right">
-    <app-code-sheet [activeSession]="activeSession" *ngIf="iAmActivePlayer"></app-code-sheet>
+    <app-code-sheet
+      [activeSession]="activeSession"
+      *ngIf="iAmActivePlayer"
+    ></app-code-sheet>
+    <button *ngIf="!iAmActivePlayer && !activeSession.started" (click)="requestActivePlayer()">
+      Ich möchte Begriffe erklären
+    </button>
     <app-history [activeSession]="activeSession"></app-history>
   </div>
 
-  <app-winner *ngIf="gameOver" [winnerTeam]="'Apfelkuchen'" (quit)="quitSession()"></app-winner> <!-- TODO: replace Apfelkuchen -->
+  <app-winner
+    *ngIf="gameOver"
+    [winnerTeam]="'Apfelkuchen'"
+    (quit)="quitSession()"
+  ></app-winner>
+  <!-- TODO: replace Apfelkuchen -->
 </div>

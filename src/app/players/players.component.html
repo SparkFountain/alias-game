@@ -28,7 +28,12 @@
       <li *ngFor="let player of team.players">
         <span [ngClass]="{ 'active-player': player.active }">
           <i class="fa fa-user-circle-o" aria-hidden="true"></i>
-          {{ player.name }}
+          <span *ngIf="team.name === user.team && player.name === user.player"
+            >&nbsp;<b>{{ player.name }} (ich)</b></span
+          >
+          <span *ngIf="team.name !== user.team || player.name !== user.player"
+            >&nbsp;{{ player.name }}</span
+          >
         </span>
       </li>
     </ul>
@@ -36,7 +41,11 @@
 
   <!-- <button class="active-player-request" *ngIf="!iAmActivePlayer" (click)="requestActivePlayer()">Ich möchte Begriffe erklären.</button> -->
 
-  <button class="positive" *ngIf="!_activeSession.started" (click)="startSession()">
+  <button
+    class="positive"
+    *ngIf="!_activeSession.started"
+    (click)="startSession()"
+  >
     Spiel beginnen
   </button>
   <button class="negative leave-session" (click)="leaveSession()">
