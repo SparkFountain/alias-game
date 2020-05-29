@@ -5,6 +5,7 @@ import { environment } from "src/environments/environment";
 import { Team } from "../interfaces/team";
 import { UserService } from "src/services/user.service";
 import { User } from "../interfaces/user";
+import { Player } from "../interfaces/player";
 
 @Component({
   selector: "app-players",
@@ -19,6 +20,13 @@ export class PlayersComponent {
     this.activeTeam = this._activeSession.teams.find(
       (team: Team) => team.active
     ).name;
+    this._activeSession.teams.forEach((team: Team) => {
+      team.players.forEach((player: Player) => {
+        if (player.name === this.user.player) {
+          this.iAmActivePlayer = player.active;
+        }
+      });
+    });
   }
   @Output() activePlayer: EventEmitter<boolean> = new EventEmitter();
   @Output() leave: EventEmitter<void> = new EventEmitter();
@@ -58,16 +66,30 @@ export class PlayersComponent {
   }
 
   startSession(): void {
-    const body = new URLSearchParams();
-    body.set("session", this._activeSession.name);
+    // check if two active players exist
+    let activePlayers = 0;
+    this._activeSession.teams.forEach((team: Team) => {
+      team.players.forEach((player: Player) => {
+        if (player.active) {
+          activePlayers++;
+        }
+      });
+    });
 
-    this.http
-      .post(
-        `${environment.server}/start-session`,
-        body.toString(),
-        environment.formHeader
-      )
-      .toPromise();
+    if (activePlayers === 2) {
+      const body = new URLSearchParams();
+      body.set("session", this._activeSession.name);
+
+      this.http
+        .post(
+          `${environment.server}/start-session`,
+          body.toString(),
+          environment.formHeader
+        )
+        .toPromise();
+    } else {
+      alert('Bevor das Spiel losgeht, muss pro Team ein aktiver Spieler gewählt sein, der die Begriffe erklärt.');
+    }
   }
 
   leaveSession(): void {

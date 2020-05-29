@@ -154,9 +154,8 @@
   </div>
 
   <app-winner
-    *ngIf="gameOver"
-    [winnerTeam]="'Apfelkuchen'"
-    (quit)="quitSession()"
+    *ngIf="winnerTeam !== ''"
+    [winnerTeam]="winnerTeam"
+    (reset)="resetSession()"
   ></app-winner>
-  <!-- TODO: replace Apfelkuchen -->
 </div>

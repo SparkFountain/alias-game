@@ -40,9 +40,9 @@ export class AppComponent implements OnInit {
   public activeSession: ActiveSession;
   public iAmActivePlayer: boolean;
 
-  public gameOver: boolean;
-
   public user: User;
+
+  public winnerTeam: string;
 
   constructor(
     private http: HttpClient,
@@ -111,7 +111,7 @@ export class AppComponent implements OnInit {
 
     this.iAmActivePlayer = false;
 
-    this.gameOver = false;
+    this.winnerTeam = "";
 
     setInterval(() => this.fetchActiveSession(), 1000);
   }
@@ -184,7 +184,7 @@ export class AppComponent implements OnInit {
     );
 
     if (selectedTeam.players.length === 0) {
-      this.teamMembers = " ist noch niemand.";
+      this.teamMembers = " ist noch niemand";
     } else if (selectedTeam.players.length === 1) {
       this.teamMembers = ` ist ${selectedTeam.players[0].name}`;
       if (selectedTeam.players[0].active) {
@@ -253,6 +253,10 @@ export class AppComponent implements OnInit {
                 this.iAmActivePlayer = true;
               }
             });
+
+            if (team.remainingCards === 0) {
+              this.winnerTeam = team.name;
+            }
           });
         });
     }
@@ -277,9 +281,19 @@ export class AppComponent implements OnInit {
       });
   }
 
-  quitSession(): void {
-    // TODO: remove database session
+  resetSession(): void {
+    const body = new URLSearchParams();
+    body.set("session", this.user.session);
 
-    this.page = "welcome";
+    this.http
+      .post(
+        `${environment.server}/reset-session`,
+        body.toString(),
+        environment.formHeader
+      )
+      .toPromise()
+      .then(() => {
+        this.winnerTeam = '';
+      });
   }
 }
