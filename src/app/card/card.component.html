@@ -1,4 +1,8 @@
-<div class="exchange-word" *ngIf="exchangeCards">
+<div
+  class="exchange-word"
+  *ngIf="_allowExchangeCards"
+  (click)="exchangeWordAction()"
+>
   <i class="fa fa-exchange" aria-hidden="true"></i>
 </div>
 <div
@@ -11,5 +15,5 @@
     cursor: _iAmActivePlayer ? 'pointer' : 'default'
   }"
 >
-  <p class="word" [ngStyle]="{ 'font-size': width / 9 + 'px' }">{{ word }}</p>
+  <p class="word" [ngStyle]="{ 'font-size': width / 9 + 'px' }">{{ _word }}</p>
 </div>
