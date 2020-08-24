@@ -114,7 +114,7 @@
   ></app-board>
   <div class="ui-right">
     <app-code-sheet [activeSession]="activeSession" *ngIf="iAmActivePlayer"></app-code-sheet>
-    <button *ngIf="!iAmActivePlayer && !activeSession.started" (click)="requestActivePlayer()">
+    <button *ngIf="!iAmActivePlayer && !activeSession.started && noActivePlayer" (click)="requestActivePlayer()">
       Ich möchte Begriffe erklären
     </button>
     <app-history [activeSession]="activeSession"></app-history>

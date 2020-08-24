@@ -5,7 +5,7 @@
 import { HttpHeaders } from '@angular/common/http';
 
 export const environment = {
-  server: 'http://alias-game.sparkfountain.de',
+  server: 'https://alias-game.sparkfountain.de',
   formHeader: {
     headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
   },

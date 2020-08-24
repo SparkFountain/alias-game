@@ -14,7 +14,7 @@
     >
   </div>
   <div class="form-group">
-    <input [(ngModel)]="term" maxlength="32" [disabled]="activeTeam !== user.team" />
+    <input [(ngModel)]="term" maxlength="24" [disabled]="activeTeam !== user.team" />
     <input type="number" [(ngModel)]="amount" min="0" max="8" [disabled]="activeTeam !== user.team" />
   </div>
   <div class="form-group active" *ngIf="_activeSession.description.denied && activeTeam === user.team">

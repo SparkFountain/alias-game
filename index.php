@@ -714,59 +714,66 @@
   function resetSession($session) {
     $db = $GLOBALS['db'];
 
-    // replace terms and reset started
-    $sql = "SELECT `horizontal`, `vertical`, `terms` FROM `session` WHERE `name`='$session'";
+    // check if any player already reset the session
+    $sql = "SELECT `id` FROM `player` WHERE `session`='$session' AND `active`=1";
     $result = $db->query($sql);
     checkForDatabaseError();
 
-    while($row = $result->fetch_assoc()) {
-      $terms = json_decode($row['terms']);
-      $horizontal = $row['horizontal'];
-      $vertical = $row['vertical'];
+    if($result->num_rows === 2) {
+      // replace terms and reset started
+      $sql = "SELECT `horizontal`, `vertical`, `terms` FROM `session` WHERE `name`='$session'";
+      $result = $db->query($sql);
+      checkForDatabaseError();
+
+      while($row = $result->fetch_assoc()) {
+        $terms = json_decode($row['terms']);
+        $horizontal = $row['horizontal'];
+        $vertical = $row['vertical'];
+      }
+
+      for($i=0; $i<$horizontal*$vertical; $i++) {
+        array_shift($terms);
+      }
+
+      $sql = "UPDATE `session` SET `terms`='".json_encode($terms)."', `started`=0 WHERE `name`='$session'";
+      $db->query($sql);
+      checkForDatabaseError();
+
+      // delete old session colors
+      $sql = "DELETE FROM `session-colors` WHERE `session`='$session'";
+      $db->query($sql);
+      checkForDatabaseError();
+
+      // create new teams with session colors
+      $sql = "SELECT `name`, `color` FROM `team` WHERE `session`='$session'";
+      $result = $db->query($sql);
+      checkForDatabaseError();
+
+      $teams = array();
+      while($row = $result->fetch_assoc()) {
+        array_push($teams, array(
+          'name' => $row['name'],
+          'color' => $row['color'],
+        ));
+      }
+
+      // first, delete old team rows
+      $sql = "DELETE FROM `team` WHERE `session`='$session'";
+      $db->query($sql);
+      checkForDatabaseError();
+
+      // now, re-create them
+      $activeTeam = rand(0, 1) == 1;
+      createTeam($session, $teams[0]['name'], $teams[0]['color'], $activeTeam ? true : false);
+      createTeam($session, $teams[1]['name'], $teams[1]['color'], $activeTeam ? false : true);
+
+      createSessionColors($session, $horizontal, $vertical, $teams[0]['color'], $teams[1]['color'], $activeTeam);
+
+      // unset active players
+      $sql = "UPDATE `player` SET `active`=0 WHERE `session`='$session'";
+      $db->query($sql);
+      checkForDatabaseError();
     }
-
-    for($i=0; $i<$horizontal*$vertical; $i++) {
-      array_shift($terms);
-    }
-
-    $sql = "UPDATE `session` SET `terms`='".json_encode($terms)."', `started`=0 WHERE `name`='$session'";
-    $db->query($sql);
-    checkForDatabaseError();
-
-    // delete old session colors
-    $sql = "DELETE FROM `session-colors` WHERE `session`='$session'";
-    $db->query($sql);
-    checkForDatabaseError();
-
-    // create new teams with session colors
-    $sql = "SELECT `name`, `color` FROM `team` WHERE `session`='$session'";
-    $result = $db->query($sql);
-    checkForDatabaseError();
-
-    $teams = array();
-    while($row = $result->fetch_assoc()) {
-      array_push($teams, array(
-        'name' => $row['name'],
-        'color' => $row['color'],
-      ));
-    }
-
-    // first, delete old team rows
-    $sql = "DELETE FROM `team` WHERE `session`='$session'";
-    $db->query($sql);
-    checkForDatabaseError();
-
-    // now, re-create them
-    $activeTeam = rand(0, 1) == 1;
-    createTeam($session, $teams[0]['name'], $teams[0]['color'], $activeTeam ? true : false);
-    createTeam($session, $teams[1]['name'], $teams[1]['color'], $activeTeam ? false : true);
-
-    createSessionColors($session, $horizontal, $vertical, $teams[0]['color'], $teams[1]['color'], $activeTeam);
-
-    // unset active players
-    $sql = "UPDATE `player` SET `active`=0 WHERE `session`='$session'";
-    $db->query($sql);
-    checkForDatabaseError();
   }
 
   function nextRound($session) {

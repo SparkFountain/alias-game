@@ -45,6 +45,8 @@ export class AppComponent implements OnInit {
 
   public winnerTeam: string;
 
+  public noActivePlayer: boolean;
+
   constructor(private http: HttpClient, private sessionService: SessionService, private userService: UserService) {}
 
   ngOnInit(): void {
@@ -101,6 +103,8 @@ export class AppComponent implements OnInit {
     this.iAmActivePlayer = false;
 
     this.winnerTeam = '';
+
+    this.noActivePlayer = true;
 
     setInterval(() => this.fetchActiveSession(), 1000);
   }
@@ -219,8 +223,12 @@ export class AppComponent implements OnInit {
         this.activeSession = response.data;
         this.activeSession.teams.forEach((team: Team) => {
           team.players.forEach((player: Player) => {
-            if (player.active && player.name === this.user.player) {
-              this.iAmActivePlayer = true;
+            if (player.active) {
+              if(player.name === this.user.player) {
+                this.iAmActivePlayer = true;
+              } else if(team.name === this.user.team) {
+                this.noActivePlayer = false;
+              }
             }
           });
 
