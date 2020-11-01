@@ -27,7 +27,7 @@ header('Content-Type: application/json; charset=utf-8');
 /* DATABASE CONNETION */
 $servername = 'localhost:3306';
 $username = 'sparkfountain';
-$password = 'RZ0SdlIv2mutKjwejcRe';
+$password = ''; // RZ0SdlIv2mutKjwejcRe
 $dbname = 'alias-game';
 
 /* RESPONSE STATUS CODES */
