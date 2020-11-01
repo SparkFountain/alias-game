@@ -23,13 +23,8 @@ import { WinnerComponent } from './winner/winner.component';
     HistoryComponent,
     WinnerComponent
   ],
-  imports: [
-    BrowserModule,
-    FormsModule,
-    HttpClientModule,
-    ColorPickerModule
-  ],
+  imports: [BrowserModule, FormsModule, HttpClientModule, ColorPickerModule],
   providers: [HttpClient],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}
